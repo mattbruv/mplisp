@@ -6,10 +6,11 @@ LDFLAGS :=
 CXXFLAGS := -Wall -std=c++11
 
 mplisp: $(OBJ_FILES)
-	   g++ -O2 -o $@ $^
+	g++ -O2 -o $@ $^
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	   g++ -O2 $(CXXFLAGS) -c $< -o $@
+	g++ -S -O2 $(CXXFLAGS) $< -o asm/$<.s
+	g++ -O2 $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f obj/*.o
