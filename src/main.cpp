@@ -1,14 +1,21 @@
 #include <iostream>
+#include <string>
+#include <list>
+
 #include "expr.h"
+#include "read.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-    Expr e;
-    e.as.symbol.name = new std::string("Dynamic string on the heap!");
-    e.as.number.intVal = 420;
+    if (argc > 1)
+    {
+        std::string source = readFile(argv[1]);
+        std::list<Token> tokens = tokenize(source);
 
-    std::cout << "Hello, world!" << std::endl;
-    std::cout << *e.as.symbol.name << std::endl;
-    std::cout << e.as.number.intVal << std::endl;
-    std::cout << e.as.number.doubleVal << std::endl;
+        for (auto const& token : tokens)
+        {
+            std::cout << token.type << ": ";
+            std::cout << token.content << std::endl;
+        }
+    }
 }
