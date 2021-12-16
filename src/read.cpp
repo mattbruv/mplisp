@@ -4,6 +4,7 @@
 #include <list>
 #include <regex>
 
+#include "globals.h"
 #include "read.h"
 
 struct tokenRegex tokenRegexes[] = {
@@ -35,20 +36,27 @@ std::list<Token> tokenize(std::string source)
             if (inText && position == 0)
             {
                 auto type = tokenRegexes[i].type;
-                std::cout << "Regex Match: " << type; // << std::endl;
-                std::cout << " " << tokenRegexes[i].pattern << std::endl;
-                std::cout << "Found: \"" << results[0] << "\"" << std::endl;
+
+                if (verbose())
+                {
+                    std::cout << "Regex Match: " << type; // << std::endl;
+                    std::cout << " " << tokenRegexes[i].pattern << std::endl;
+                    std::cout << "Found: \"" << results[0] << "\"" << std::endl;
+                }
 
                 // We only care about actual source code
                 // Ignore comments and whitespace
                 if (type != TokenType::COMMENT && type != TokenType::WHITESPACE)
                 {
-                    std::cout << "Create token: '" << results[0] << "'" << std::endl;
+                    if (verbose())
+                        std::cout << "Create token: '" << results[0] << "'" << std::endl;
+
                     Token t = { type, results[0] };
                     tokens.push_back(t);
                 }
 
-                std::cout << std::endl;
+                if (verbose())
+                    std::cout << std::endl;
 
                 source = results.suffix().str();
                 errors = false;
