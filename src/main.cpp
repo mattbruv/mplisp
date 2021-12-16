@@ -14,8 +14,7 @@ int main(int argc, char* argv[])
 
         for (auto const& token : tokens)
         {
-            std::cout << token.type << ": ";
-            std::cout << token.content << std::endl;
+            printToken(token);
         }
     }
 }

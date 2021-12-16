@@ -25,5 +25,6 @@ struct Token
     std::string content;
 };
 
+void printToken(Token token);
 std::list<Token> tokenize(std::string source);
 std::string readFile(std::string path);

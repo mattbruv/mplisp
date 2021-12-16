@@ -7,7 +7,7 @@
 #include "read.h"
 
 struct tokenRegex tokenRegexes[] = {
-    { TokenType::WHITESPACE, "[\\s,]*" }, //
+    { TokenType::WHITESPACE, "[\\s,]+" }, //
     { TokenType::COMMENT, ";.*" }, //
     { TokenType::PAREN_LEFT, "\\(" }, //
     { TokenType::PAREN_RIGHT, "\\)" }, //
@@ -21,33 +21,48 @@ std::list<Token> tokenize(std::string source)
 {
     std::list<Token> tokens;
 
-    std::cout << "Tokenizing:" << std::endl;
-    std::cout << source << std::endl;
-
-    int i = 0;
-    while (i++ < 3) //source.length() > 0)
+    while (source.length() > 0)
     {
-        std::cout << source.length() << std::endl;
         for (int i = 0; i < REGEX_COUNT; i++)
         {
             auto const regex = std::regex(tokenRegexes[i].pattern);
             auto results = std::smatch();
             bool const inText = std::regex_search(source, results, regex);
+            auto position = results.position(0);
 
-            if (inText)
+            if (inText && position == 0)
             {
-                std::cout << "found in text: " << tokenRegexes[i].type << std::endl;
-                std::cout << source << std::endl;
+                auto type = tokenRegexes[i].type;
+                std::cout << "Regex Match: " << type; // << std::endl;
+                std::cout << " " << tokenRegexes[i].pattern << std::endl;
+                std::cout << "Found: \"" << results[0] << "\"" << std::endl;
+
+                // We only care about actual source code
+                // Ignore comments and whitespace
+                if (type != TokenType::COMMENT && type != TokenType::WHITESPACE)
+                {
+                    std::cout << "Create token: '" << results[0] << "'" << std::endl;
+                    Token* t = new Token; // { type, results[0] };
+                    t->type = type;
+                    t->content = results[0];
+
+                    tokens.push_back(*t);
+                }
+
                 source = results.suffix().str();
-                std::cout << source << std::endl;
-                std::cout << source.length() << std::endl;
                 break;
-                //std::cout << results << std::endl;
             }
         }
     }
 
     return tokens;
+}
+
+void printToken(Token token)
+{
+    std::cout << "TOKEN:" << std::endl;
+    std::cout << "type: " << token.type << std::endl;
+    std::cout << "content: \"" << token.content << "\"" << std::endl << std::endl;
 }
 
 std::string readFile(std::string path)
