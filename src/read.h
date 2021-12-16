@@ -11,6 +11,7 @@ enum TokenType
     PAREN_RIGHT,
     QUOTE,
     SYMBOL_NUMBER,
+    STRING,
 };
 
 struct tokenRegex
@@ -25,6 +26,7 @@ struct Token
     std::string content;
 };
 
+void printTokens(std::list<Token> tokens);
 void printToken(Token token);
 std::list<Token> tokenize(std::string source);
 std::string readFile(std::string path);

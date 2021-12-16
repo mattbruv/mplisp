@@ -8,11 +8,12 @@
 
 struct tokenRegex tokenRegexes[] = {
     { TokenType::WHITESPACE, "[\\s,]+" }, //
-    { TokenType::COMMENT, ";.*" }, //
+    { TokenType::COMMENT, ";.+" }, //
     { TokenType::PAREN_LEFT, "\\(" }, //
     { TokenType::PAREN_RIGHT, "\\)" }, //
     { TokenType::QUOTE, "\'" }, //
-    { TokenType::SYMBOL_NUMBER, "[^\\s\\[\\]{}('\"`,;)]*" }, //
+    { TokenType::SYMBOL_NUMBER, "[^\\s\\[\\]{}('\"`,;)]+" }, //
+    { TokenType::STRING, "\\\".*\\\"" } //
 };
 
 int REGEX_COUNT = sizeof(tokenRegexes) / sizeof(tokenRegexes[0]);
@@ -23,6 +24,7 @@ std::list<Token> tokenize(std::string source)
 
     while (source.length() > 0)
     {
+        bool errors = true;
         for (int i = 0; i < REGEX_COUNT; i++)
         {
             auto const regex = std::regex(tokenRegexes[i].pattern);
@@ -42,27 +44,53 @@ std::list<Token> tokenize(std::string source)
                 if (type != TokenType::COMMENT && type != TokenType::WHITESPACE)
                 {
                     std::cout << "Create token: '" << results[0] << "'" << std::endl;
-                    Token* t = new Token; // { type, results[0] };
-                    t->type = type;
-                    t->content = results[0];
-
-                    tokens.push_back(*t);
+                    Token t = { type, results[0] };
+                    tokens.push_back(t);
                 }
 
+                std::cout << std::endl;
+
                 source = results.suffix().str();
+                errors = false;
                 break;
             }
+        }
+
+        if (errors)
+        {
+            std::cout << "Error parsing remaining input: ";
+            std::cout << "'" << source << "'" << std::endl;
+            break;
         }
     }
 
     return tokens;
 }
 
+void printTokens(std::list<Token> tokens)
+{
+    std::cout << "Found " << tokens.size() << " tokens in total." << std::endl;
+    int i = 1;
+    for (auto const& token : tokens)
+    {
+        std::cout << "'" << token.content << "' ";
+        if (i++ % 10 == 0)
+            std::cout << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+    i = 0;
+    for (auto const& token : tokens)
+    {
+        std::cout << i++ << " ";
+        printToken(token);
+    }
+}
+
 void printToken(Token token)
 {
-    std::cout << "TOKEN:" << std::endl;
-    std::cout << "type: " << token.type << std::endl;
-    std::cout << "content: \"" << token.content << "\"" << std::endl << std::endl;
+    std::cout << token.type << ": ";
+    std::cout << "\"" << token.content << "\"";
+    std::cout << std::endl;
 }
 
 std::string readFile(std::string path)

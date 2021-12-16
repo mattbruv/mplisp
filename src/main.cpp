@@ -11,10 +11,6 @@ int main(int argc, char* argv[])
     {
         std::string source = readFile(argv[1]);
         std::list<Token> tokens = tokenize(source);
-
-        for (auto const& token : tokens)
-        {
-            printToken(token);
-        }
+        printTokens(tokens);
     }
 }

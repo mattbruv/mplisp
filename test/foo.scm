@@ -15,7 +15,7 @@
 (define (string-split str delim)
   (collect (string->list str) #\newline '()))
 
-(define file (call-with-input-file "C:\\Users\\MattP\\Documents\\AOC-2021\\src\\day03\\input.txt" get-string-all))
+(define file '(call-with-input-file "C:\\Users\\MattP\\Documents\\AOC-2021\\src\\day03\\input.txt" get-string-all))
 
 (define input (string-split file "\n"))
 
