@@ -1,8 +1,8 @@
 ;testing comments
 ;multiple lines
 
-  (+ 1 2) ;; blah blah
+(+ 1 2) ;; blah blah
 
-(define foo (/ 1 0))
+;(define foo (/ 1 0))
 
-(- 20 5)
+;(- 20 5)
