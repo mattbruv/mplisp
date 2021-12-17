@@ -5,9 +5,9 @@
 
 #include "env.h"
 
-Environment::Environment()
+Environment::Environment(Environment* parent)
 {
-    this->parent = nullptr;
+    this->parent = parent;
     this->variables = std::map<std::string, Expr*>();
 }
 

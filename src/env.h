@@ -8,7 +8,7 @@
 class Environment
 {
 public:
-    Environment();
+    Environment(Environment* parent);
     Environment* parent;
     std::map<std::string, Expr*> variables;
     Expr* getVariable(std::string name);

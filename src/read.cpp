@@ -72,6 +72,9 @@ std::list<Token> tokenize(std::string source)
         }
     }
 
+    if (verbose())
+        printTokens(tokens);
+
     return tokens;
 }
 

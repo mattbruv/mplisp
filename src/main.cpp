@@ -47,10 +47,10 @@ int main(int argc, char* argv[])
         }
 
         std::list<Token> tokens = tokenize(source);
-        printTokens(tokens);
 
-        Environment env;
+        Environment env(nullptr);
         Expr n;
+        n.type = ExprType::Number;
         n.as.number.isInt = true;
         n.as.number.as.intValue = 420;
         env.variables["foo"] = &n;
