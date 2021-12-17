@@ -3,6 +3,7 @@
 #include <list>
 
 #include "globals.h"
+#include "env.h"
 #include "expr.h"
 #include "read.h"
 
@@ -47,5 +48,24 @@ int main(int argc, char* argv[])
 
         std::list<Token> tokens = tokenize(source);
         printTokens(tokens);
+
+        Environment env;
+        Expr n;
+        n.as.number.isInt = true;
+        n.as.number.as.intValue = 420;
+        env.variables["foo"] = &n;
+
+        std::cout << &n << std::endl;
+        try
+        {
+            auto val = env.getVariable("foo");
+            std::cout << &*val << std::endl;
+            std::cout << val->type << std::endl;
+            std::cout << val->as.number.as.intValue << std::endl;
+        }
+        catch (std::runtime_error const& error)
+        {
+            std::cout << error.what() << std::endl;
+        }
     }
 }

@@ -8,9 +8,9 @@ struct Expr;
 enum ExprType
 {
     Symbol,
-    Number,
     Conditional,
     Definition,
+    Number,
     Procedure
 };
 
@@ -31,33 +31,38 @@ struct ExprNumber
 
 struct ExprConditional
 {
-    Expr* conditionTest;
-    Expr* exprTrue;
-    Expr* exprFalse;
+    Expr* exprTest;
+    Expr* exprIfTrue;
+    Expr* exprIfFalse;
 };
 
 struct ExprProcedure
 {
-    ExprSymbol* name;
-    std::vector<ExprSymbol*> args;
+    Expr* name;
+    std::vector<Expr*> args;
     Expr* body;
 };
 
 struct ExprDefinition
 {
-    ExprSymbol* name;
+    Expr* name;
     Expr* value;
 };
 
 struct Expr
 {
     ExprType type;
-    union
+    union as
     {
         struct ExprSymbol symbol;
         struct ExprNumber number;
         struct ExprConditional conditional;
         struct ExprProcedure procedure;
         struct ExprDefinition definition;
+
+        // The compmiler can't create constructor
+        // for unions with non-static data members
+        as(){};
+        ~as(){};
     } as;
 };
