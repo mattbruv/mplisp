@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <list>
+#include <vector>
 
 enum TokenType
 {
@@ -26,7 +26,7 @@ struct Token
     std::string content;
 };
 
-void printTokens(std::list<Token> tokens);
+void printTokens(std::vector<Token> tokens);
 void printToken(Token token);
-std::list<Token> tokenize(std::string source);
+std::vector<Token> tokenize(std::string source);
 std::string readFile(std::string path);

@@ -6,6 +6,7 @@
 #include "env.h"
 #include "expr.h"
 #include "read.h"
+#include "parse.h"
 
 void printHelp()
 {
@@ -46,22 +47,11 @@ int main(int argc, char* argv[])
             }
         }
 
-        std::list<Token> tokens = tokenize(source);
+        std::vector<Token> tokens = tokenize(source);
+        auto parser = new Parser(tokens);
 
-        Environment env(nullptr);
-        Expr n;
-        n.type = ExprType::Number;
-        n.as.number.isInt = true;
-        n.as.number.as.intValue = 420;
-        env.variables["foo"] = &n;
-
-        std::cout << &n << std::endl;
         try
         {
-            auto val = env.getVariable("foo");
-            std::cout << &*val << std::endl;
-            std::cout << val->type << std::endl;
-            std::cout << val->as.number.as.intValue << std::endl;
         }
         catch (std::runtime_error const& error)
         {

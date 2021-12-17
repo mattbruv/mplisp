@@ -19,9 +19,10 @@ struct tokenRegex tokenRegexes[] = {
 
 int REGEX_COUNT = sizeof(tokenRegexes) / sizeof(tokenRegexes[0]);
 
-std::list<Token> tokenize(std::string source)
+// TODO: support line number/column metadata
+std::vector<Token> tokenize(std::string source)
 {
-    std::list<Token> tokens;
+    std::vector<Token> tokens;
 
     while (source.length() > 0)
     {
@@ -78,7 +79,7 @@ std::list<Token> tokenize(std::string source)
     return tokens;
 }
 
-void printTokens(std::list<Token> tokens)
+void printTokens(std::vector<Token> tokens)
 {
     std::cout << "Found " << tokens.size() << " tokens in total." << std::endl;
     int i = 1;

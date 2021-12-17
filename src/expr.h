@@ -16,7 +16,7 @@ enum ExprType
 
 struct ExprSymbol
 {
-    std::string* name;
+    std::string name;
 };
 
 struct ExprNumber
@@ -49,7 +49,7 @@ struct ExprDefinition
     Expr* value;
 };
 
-struct Expr
+typedef struct Expr
 {
     ExprType type;
     union as
@@ -65,4 +65,11 @@ struct Expr
         as(){};
         ~as(){};
     } as;
-};
+
+    Expr(){};
+    Expr(const Expr&){};
+    //~Expr(){};
+} Expr;
+
+//Expr createSymbol(std::string name);
+Expr createNumber(std::string value);
