@@ -9,7 +9,7 @@ class Parser
 {
 public:
     Parser(std::vector<Token> tokens);
-    Expr parse();
+    Expr* parse();
 
 private:
     int current = 0;

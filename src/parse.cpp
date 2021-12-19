@@ -12,9 +12,14 @@ Parser::Parser(std::vector<Token> tokens)
     printTokens(this->tokens);
 }
 
-Expr Parser::parse()
+Expr* Parser::parse()
 {
+    Expr* expr = new Expr();
+    expr->type = ExprType::Number;
+    expr->as.number.isInt = true;
+    expr->as.number.as.intValue = 3259;
     auto token = peek();
+    return expr;
 }
 
 bool Parser::isAtEnd()

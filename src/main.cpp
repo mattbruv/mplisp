@@ -49,6 +49,8 @@ int main(int argc, char* argv[])
 
         std::vector<Token> tokens = tokenize(source);
         auto parser = new Parser(tokens);
+        Expr* result = parser->parse();
+        printExpr(result);
 
         try
         {
