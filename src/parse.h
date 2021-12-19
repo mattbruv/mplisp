@@ -23,3 +23,5 @@ private:
     Token consume(TokenType type, std::string message);
     std::runtime_error error(Token token, std::string message);
 };
+
+bool parseNumber(Token token, Expr* expr);

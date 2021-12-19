@@ -9,16 +9,19 @@ Parser::Parser(std::vector<Token> tokens)
 {
     this->current = 0;
     this->tokens = tokens;
-    printTokens(this->tokens);
+    // printTokens(this->tokens);
 }
 
 Expr* Parser::parse()
 {
     Expr* expr = new Expr();
-    expr->type = ExprType::Number;
-    expr->as.number.isInt = true;
-    expr->as.number.as.intValue = 3259;
     auto token = peek();
+
+    if (parseNumber(token, expr))
+    {
+        return expr;
+    }
+    printToken(token);
     return expr;
 }
 
@@ -65,4 +68,34 @@ Token Parser::consume(TokenType type, std::string message)
 std::runtime_error Parser::error(Token token, std::string message)
 {
     return std::runtime_error(message + token.content);
+}
+
+bool parseNumber(Token token, Expr* expr)
+{
+    try
+    {
+        // try to parse as double if content contains .
+        if (token.content.find(".") != std::string::npos)
+        {
+            auto doubleVal = std::stod(token.content);
+            expr->type = ExprType::Number;
+            expr->as.number.isInt = false;
+            expr->as.number.as.doubleValue = doubleVal;
+            return true;
+        }
+        // otherwise, parse it as a normal old integer
+        else
+        {
+            auto intVal = std::stoll(token.content);
+            expr->type = ExprType::Number;
+            expr->as.number.isInt = true;
+            expr->as.number.as.intValue = intVal;
+            return true;
+        }
+    }
+    catch (std::invalid_argument& error)
+    {
+        return false;
+    }
+    return false;
 }
