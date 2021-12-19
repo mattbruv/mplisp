@@ -16,7 +16,7 @@ enum ExprType
 
 struct ExprSymbol
 {
-    std::string name;
+    std::string* name;
 };
 
 struct ExprNumber

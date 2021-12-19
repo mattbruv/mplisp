@@ -26,7 +26,7 @@ void printExpr(Expr* expr)
     }
     case ExprType::Symbol:
     {
-        std::cout << "Symbol: " << expr->as.symbol.name;
+        std::cout << "Symbol: " << *expr->as.symbol.name;
         break;
     }
     case ExprType::Conditional:

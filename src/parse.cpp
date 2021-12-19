@@ -9,7 +9,6 @@ Parser::Parser(std::vector<Token> tokens)
 {
     this->current = 0;
     this->tokens = tokens;
-    // printTokens(this->tokens);
 }
 
 Expr* Parser::parse()
@@ -17,10 +16,18 @@ Expr* Parser::parse()
     Expr* expr = new Expr();
     auto token = peek();
 
-    if (parseNumber(token, expr))
+    if (token.type == TokenType::SYMBOL_NUMBER)
     {
+        if (parseNumber(token, expr))
+        {
+            return expr;
+        }
+        expr->type = ExprType::Symbol;
+        expr->as.symbol.name = new std::string(token.content);
+        std::cout << token.content << std::endl;
         return expr;
     }
+
     printToken(token);
     return expr;
 }
