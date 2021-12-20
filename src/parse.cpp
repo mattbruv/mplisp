@@ -15,20 +15,20 @@ Expr* Parser::parse()
 {
     Expr* expr = new Expr();
     auto token = peek();
-    std::cout << "parse() " << token.content << std::endl;
+    //std::cout << "parse() " << token.content << std::endl;
 
     if (token.type == TokenType::SYMBOL_NUMBER)
     {
-        std::cout << "parse number/symbol expr" << std::endl;
+        //std::cout << "parse number/symbol expr" << std::endl;
         advance();
         if (parseNumber(token, expr))
         {
-            std::cout << "return number" << std::endl;
+            //std::cout << "return number" << std::endl;
             return expr;
         }
         expr->type = ExprType::Symbol;
         expr->as.symbol.name = new std::string(token.content);
-        std::cout << "return symbol" << std::endl;
+        //std::cout << "return symbol" << std::endl;
         return expr;
     }
 
