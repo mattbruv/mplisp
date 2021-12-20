@@ -32,10 +32,12 @@ void printExpr(Expr* expr)
     case ExprType::List:
     {
         std::cout << "(";
-        for (auto e : *expr->as.list.exprs)
+        auto list = *expr->as.list.exprs;
+        for (auto iter = list.begin(); iter != list.end(); iter++)
         {
-            printExpr(e);
-            std::cout << ", ";
+            printExpr(*iter);
+            if (std::next(iter, 1) != list.end())
+                std::cout << ", ";
         }
         std::cout << ")";
         break;
