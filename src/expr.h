@@ -80,4 +80,4 @@ typedef struct Expr
 
 //Expr createSymbol(std::string name);
 Expr createNumber(std::string value);
-void printExpr(Expr* expr);
+void printExpr(Expr* expr, bool newline);

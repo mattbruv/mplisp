@@ -10,7 +10,7 @@ Expr createNumber(std::string value)
     return expr;
 }
 
-void printExpr(Expr* expr)
+void printExpr(Expr* expr, bool newline)
 {
     // std::cout << "Expr type: " << expr->type << " ";
     switch (expr->type)
@@ -35,7 +35,7 @@ void printExpr(Expr* expr)
         auto list = *expr->as.list.exprs;
         for (auto iter = list.begin(); iter != list.end(); iter++)
         {
-            printExpr(*iter);
+            printExpr(*iter, false);
             if (std::next(iter, 1) != list.end())
                 std::cout << ", ";
         }
@@ -48,4 +48,6 @@ void printExpr(Expr* expr)
         break;
     }
     }
+    if (newline)
+        std::cout << std::endl;
 }

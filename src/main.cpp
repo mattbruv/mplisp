@@ -2,6 +2,7 @@
 #include <string>
 #include <list>
 
+#include "eval.h"
 #include "globals.h"
 #include "env.h"
 #include "expr.h"
@@ -47,10 +48,15 @@ int main(int argc, char* argv[])
             }
         }
 
+        // Global default environment
+        Environment* globalEnv = new Environment(nullptr);
+
         std::vector<Token> tokens = tokenize(source);
         auto parser = new Parser(tokens);
         Expr* result = parser->parse();
-        printExpr(result);
+        printExpr(result, true);
+        Expr* evaled = eval(result, globalEnv);
+        printExpr(evaled, true);
 
         try
         {
