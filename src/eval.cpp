@@ -1,7 +1,18 @@
 #include <iostream>
+#include <string>
+#include <map>
 
 #include "eval.h"
 #include "expr.h"
+
+enum STDFunc
+{
+    ADD
+};
+
+auto StdMap = std::map<std::string, STDFunc>{
+    { "+", STDFunc::ADD } //
+};
 
 Expr* eval(Expr* expr, Environment* env)
 {
@@ -42,9 +53,25 @@ Expr* evalList(Expr* expr, Environment* env)
 
     if (first->type == ExprType::Symbol)
     {
-        /*
-        switch (*first->as.symbol.name)
-            printExpr(first, true); */
+        // If in global map
+        auto search = StdMap.find(*first->as.symbol.name);
+        if (search != StdMap.end())
+        {
+            auto func = StdMap[*first->as.symbol.name];
+            switch (func)
+            {
+            case STDFunc::ADD:
+            {
+                //TODO: add numbers
+                break;
+            }
+            default:
+            {
+                throw std::runtime_error("No global function defined for: " + func);
+                break;
+            }
+            }
+        }
     }
 
     return expr;
