@@ -52,7 +52,7 @@ struct ExprDefinition
 
 struct ExprList
 {
-    std::vector<Expr*> exprs;
+    std::vector<Expr*>* exprs;
 };
 
 typedef struct Expr

@@ -35,12 +35,12 @@ Expr* Parser::parse()
     consume(TokenType::PAREN_LEFT, "Expected (, found " + token.content);
     expr->type = ExprType::List;
     // Don't forget to initialize your variables or bad things happen
-    expr->as.list.exprs = std::vector<Expr*>();
+    expr->as.list.exprs = new std::vector<Expr*>();
 
     while (check(TokenType::PAREN_RIGHT) == false)
     {
         Expr* temp = this->parse();
-        expr->as.list.exprs.push_back(*&temp);
+        expr->as.list.exprs->push_back(*&temp);
     }
 
     consume(TokenType::PAREN_RIGHT, "Expected ), found " + token.content);

@@ -32,7 +32,7 @@ void printExpr(Expr* expr)
     case ExprType::List:
     {
         std::cout << "(";
-        for (auto e : expr->as.list.exprs)
+        for (auto e : *expr->as.list.exprs)
         {
             printExpr(e);
             std::cout << ", ";
