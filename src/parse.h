@@ -20,6 +20,7 @@ private:
     Token previous();
     Token advance();
     bool check(TokenType type);
+    bool match(TokenType type);
     Token consume(TokenType type, std::string message);
     std::runtime_error error(Token token, std::string message);
 };

@@ -17,7 +17,7 @@ void printExpr(Expr* expr)
     {
     case ExprType::Number:
     {
-        std::cout << ((expr->as.number.isInt) ? "Integer: " : "Double: ");
+        std::cout << ((expr->as.number.isInt) ? "int: " : "dbl: ");
         if (expr->as.number.isInt)
             std::cout << expr->as.number.as.intValue;
         else
@@ -26,12 +26,18 @@ void printExpr(Expr* expr)
     }
     case ExprType::Symbol:
     {
-        std::cout << "Symbol: " << *expr->as.symbol.name;
+        std::cout << "sym: " << *expr->as.symbol.name;
         break;
     }
-    case ExprType::Conditional:
+    case ExprType::List:
     {
-        std::cout << "Conditional: " << &expr;
+        std::cout << "(";
+        for (auto e : expr->as.list.exprs)
+        {
+            printExpr(e);
+            std::cout << ", ";
+        }
+        std::cout << ")";
         break;
     }
     default:
@@ -40,5 +46,4 @@ void printExpr(Expr* expr)
         break;
     }
     }
-    std::cout << std::endl;
 }

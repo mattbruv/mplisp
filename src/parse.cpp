@@ -15,21 +15,47 @@ Expr* Parser::parse()
 {
     Expr* expr = new Expr();
     auto token = peek();
+    std::cout << "parse() " << token.content << std::endl;
 
     if (token.type == TokenType::SYMBOL_NUMBER)
     {
+        std::cout << "parse number/symbol expr" << std::endl;
+        advance();
         if (parseNumber(token, expr))
         {
+            std::cout << "return number" << std::endl;
             return expr;
         }
         expr->type = ExprType::Symbol;
         expr->as.symbol.name = new std::string(token.content);
-        std::cout << token.content << std::endl;
+        std::cout << "return symbol" << std::endl;
         return expr;
     }
 
-    printToken(token);
+    consume(TokenType::PAREN_LEFT, "Expected (, found " + token.content);
+    expr->type = ExprType::List;
+    // Don't forget to initialize your variables or bad things happen
+    expr->as.list.exprs = std::vector<Expr*>();
+
+    while (check(TokenType::PAREN_RIGHT) == false)
+    {
+        Expr* temp = this->parse();
+        expr->as.list.exprs.push_back(*&temp);
+    }
+
+    consume(TokenType::PAREN_RIGHT, "Expected ), found " + token.content);
+
     return expr;
+}
+
+bool Parser::match(TokenType type)
+{
+    if (check(type))
+    {
+        advance();
+        return true;
+    }
+    return false;
 }
 
 bool Parser::isAtEnd()

@@ -1,7 +1,8 @@
 ;testing comments
 ;multiple lines
 
-3259.420
+(32 59, 420.69, foo)
+3259
 
 (+ 1 2) ;; blah blah
 

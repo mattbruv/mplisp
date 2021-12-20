@@ -8,9 +8,10 @@ struct Expr;
 enum ExprType
 {
     Symbol,
+    Number,
+    List,
     Conditional,
     Definition,
-    Number,
     Procedure
 };
 
@@ -49,6 +50,11 @@ struct ExprDefinition
     Expr* value;
 };
 
+struct ExprList
+{
+    std::vector<Expr*> exprs;
+};
+
 typedef struct Expr
 {
     ExprType type;
@@ -56,9 +62,10 @@ typedef struct Expr
     {
         struct ExprSymbol symbol;
         struct ExprNumber number;
-        struct ExprConditional conditional;
-        struct ExprProcedure procedure;
-        struct ExprDefinition definition;
+        struct ExprList list;
+        // struct ExprConditional conditional;
+        // struct ExprProcedure procedure;
+        // struct ExprDefinition definition;
 
         // The compmiler can't create constructor
         // for unions with non-static data members
