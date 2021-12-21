@@ -62,7 +62,7 @@ Expr* evalList(Expr* expr, Environment* env)
             {
             case STDFunc::ADD:
             {
-                //TODO: add numbers
+                funcAdd(expr, env);
                 break;
             }
             default:
@@ -72,7 +72,24 @@ Expr* evalList(Expr* expr, Environment* env)
             }
             }
         }
+
+        return expr;
     }
 
+    return expr;
+}
+
+Expr* funcAdd(Expr* expr, Environment* env)
+{
+    Expr* result = new Expr();
+    expr->type = ExprType::Number;
+
+    int i = 0;
+    auto list = *expr->as.list.exprs;
+
+    for (auto iter = list.begin(); iter != list.end(); iter++)
+    {
+        std::cout << i << ", ";
+    }
     return expr;
 }

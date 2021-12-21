@@ -5,3 +5,4 @@
 
 Expr* eval(Expr* expression, Environment* env);
 Expr* evalList(Expr* expr, Environment* env);
+Expr* funcAdd(Expr* expr, Environment* env);
