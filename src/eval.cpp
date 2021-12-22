@@ -20,7 +20,7 @@ Expr* eval(Expr* expr, Environment* env)
     {
     case ExprType::Symbol:
     {
-        return env->getVariable(*expr->as.symbol.name);
+        return env->getVariable(expr);
         break;
     }
     case ExprType::Number:
@@ -48,6 +48,15 @@ Expr* evalList(Expr* expr, Environment* env)
     if (list->size() == 0)
         return expr;
 
+    // Recursively evaluate all expressions in this list
+    //   auto iter = list.begin();
+    //    for (iter++; iter != list.end(); iter++)
+    for (auto iter = list->begin(); iter != list->end(); iter++)
+    {
+        Expr* evaled = eval((*iter), env);
+        (*iter) = evaled;
+    };
+
     // if the first item is a symbol, it's a function call
     Expr* first = list->front();
 
@@ -62,7 +71,8 @@ Expr* evalList(Expr* expr, Environment* env)
             {
             case STDFunc::ADD:
             {
-                funcAdd(expr, env);
+                auto res = funcAdd(expr, env);
+                return res;
                 break;
             }
             default:
@@ -72,24 +82,42 @@ Expr* evalList(Expr* expr, Environment* env)
             }
             }
         }
-
-        return expr;
     }
 
     return expr;
 }
 
+double numberToDouble(Expr* expr)
+{
+    if (expr->as.number.isInt)
+    {
+        return (double)expr->as.number.as.intValue;
+    }
+    return expr->as.number.as.doubleValue;
+}
+
 Expr* funcAdd(Expr* expr, Environment* env)
 {
     Expr* result = new Expr();
-    expr->type = ExprType::Number;
 
-    int i = 0;
     auto list = *expr->as.list.exprs;
 
-    for (auto iter = list.begin(); iter != list.end(); iter++)
+    double sum = 0;
+    auto iter = list.begin();
+
+    for (iter++; iter != list.end(); iter++)
     {
-        std::cout << i << ", ";
+        auto type = (*iter)->type;
+        Expr* value = *iter;
+
+        if (type != ExprType::Number)
+            throw std::runtime_error("+: Invalid expression given: " + type);
+
+        sum += numberToDouble(value);
     }
-    return expr;
+
+    result->type = ExprType::Number;
+    result->as.number.isInt = false;
+    result->as.number.as.doubleValue = sum;
+    return result;
 }
