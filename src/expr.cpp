@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include "expr.h"
 
@@ -21,7 +22,7 @@ void printExpr(Expr* expr, bool newline)
         if (expr->as.number.isInt)
             std::cout << expr->as.number.as.intValue;
         else
-            std::cout << expr->as.number.as.doubleValue;
+            std::cout << std::setprecision(6) << expr->as.number.as.doubleValue;
         break;
     }
     case ExprType::Symbol:

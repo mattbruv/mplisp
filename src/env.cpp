@@ -10,6 +10,9 @@ Environment::Environment(Environment* parent)
     this->parent = parent;
     this->variables = std::map<std::string, Expr*>();
     this->reservedSymbols.insert("+");
+    this->reservedSymbols.insert("-");
+    this->reservedSymbols.insert("*");
+    this->reservedSymbols.insert("/");
 }
 
 Expr* Environment::getVariable(Expr* sym)

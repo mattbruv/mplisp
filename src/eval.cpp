@@ -7,11 +7,17 @@
 
 enum STDFunc
 {
-    ADD
+    ADD,
+    SUB,
+    MUL,
+    DIV,
 };
 
 auto StdMap = std::map<std::string, STDFunc>{
-    { "+", STDFunc::ADD } //
+    { "+", STDFunc::ADD }, //
+    { "-", STDFunc::SUB }, //
+    { "*", STDFunc::MUL }, //
+    { "/", STDFunc::DIV }, //
 };
 
 Expr* eval(Expr* expr, Environment* env)
@@ -49,11 +55,11 @@ Expr* evalList(Expr* expr, Environment* env)
         return expr;
 
     // Recursively evaluate all expressions in this list
-    //   auto iter = list.begin();
-    //    for (iter++; iter != list.end(); iter++)
     for (auto iter = list->begin(); iter != list->end(); iter++)
     {
         Expr* evaled = eval((*iter), env);
+        // TODO: this would cause bugs, figure out how to manage memory
+        //delete (*iter); // free memory at the old expression pointer
         (*iter) = evaled;
     };
 
@@ -74,6 +80,21 @@ Expr* evalList(Expr* expr, Environment* env)
                 auto res = funcAdd(expr, env);
                 return res;
                 break;
+            }
+            case STDFunc::SUB:
+            {
+                auto res = funcSub(expr, env);
+                return res;
+            }
+            case STDFunc::MUL:
+            {
+                auto res = funcMul(expr, env);
+                return res;
+            }
+            case STDFunc::DIV:
+            {
+                auto res = funcDiv(expr, env);
+                return res;
             }
             default:
             {
@@ -114,6 +135,96 @@ Expr* funcAdd(Expr* expr, Environment* env)
             throw std::runtime_error("+: Invalid expression given: " + type);
 
         sum += numberToDouble(value);
+    }
+
+    result->type = ExprType::Number;
+    result->as.number.isInt = false;
+    result->as.number.as.doubleValue = sum;
+    return result;
+}
+
+Expr* funcSub(Expr* expr, Environment* env)
+{
+    Expr* result = new Expr();
+
+    auto list = *expr->as.list.exprs;
+
+    double sum = 0;
+    auto iter = list.begin();
+
+    for (iter++; iter != list.end(); iter++)
+    {
+        auto type = (*iter)->type;
+        Expr* value = *iter;
+
+        if (type != ExprType::Number)
+            throw std::runtime_error("+: Invalid expression given: " + type);
+
+        sum -= numberToDouble(value);
+    }
+
+    result->type = ExprType::Number;
+    result->as.number.isInt = false;
+    result->as.number.as.doubleValue = sum;
+    return result;
+}
+
+Expr* funcMul(Expr* expr, Environment* env)
+{
+    Expr* result = new Expr();
+
+    auto list = *expr->as.list.exprs;
+
+    double sum = 1;
+    auto iter = list.begin();
+
+    for (iter++; iter != list.end(); iter++)
+    {
+        auto type = (*iter)->type;
+        Expr* value = *iter;
+
+        if (type != ExprType::Number)
+            throw std::runtime_error("+: Invalid expression given: " + type);
+
+        sum *= numberToDouble(value);
+    }
+
+    result->type = ExprType::Number;
+    result->as.number.isInt = false;
+    result->as.number.as.doubleValue = sum;
+    return result;
+}
+
+Expr* funcDiv(Expr* expr, Environment* env)
+{
+    Expr* result = new Expr();
+
+    auto list = *expr->as.list.exprs;
+
+    auto sum = 1;
+    bool populated = false;
+    auto iter = list.begin();
+
+    for (iter++; iter != list.end(); iter++)
+    {
+        auto type = (*iter)->type;
+        Expr* value = *iter;
+
+        if (type != ExprType::Number)
+            throw std::runtime_error("+: Invalid expression given: " + type);
+
+        if (!populated)
+        {
+            populated = true;
+            sum = numberToDouble(value);
+            continue;
+        }
+
+        auto div = numberToDouble(value);
+        if (div == 0)
+            throw std::runtime_error("/: Divison by zero!");
+
+        sum /= div;
     }
 
     result->type = ExprType::Number;
