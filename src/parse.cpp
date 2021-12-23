@@ -85,8 +85,6 @@ Token Parser::advance()
 
 bool Parser::check(TokenType type)
 {
-    if (isAtEnd())
-        return false;
     return peek().type == type;
 }
 
@@ -100,7 +98,7 @@ Token Parser::consume(TokenType type, std::string message)
 
 std::runtime_error Parser::error(Token token, std::string message)
 {
-    return std::runtime_error(message + token.content);
+    return std::runtime_error(message);
 }
 
 bool parseNumber(Token token, Expr* expr)
