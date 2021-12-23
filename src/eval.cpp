@@ -98,7 +98,8 @@ Expr* evalList(Expr* expr, Environment* env)
             }
             default:
             {
-                throw std::runtime_error("No global function defined for: " + func);
+                throw std::runtime_error("No global function defined for: " +
+                                         *first->as.symbol.name);
                 break;
             }
             }

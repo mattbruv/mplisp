@@ -48,6 +48,8 @@ int main(int argc, char* argv[])
             }
         }
 
+        try
+        {
         // Global default environment
         Environment* globalEnv = new Environment(nullptr);
         Expr* foo = new Expr();
@@ -62,9 +64,6 @@ int main(int argc, char* argv[])
         printExpr(result, true);
         Expr* evaled = eval(result, globalEnv);
         printExpr(evaled, true);
-
-        try
-        {
         }
         catch (std::runtime_error const& error)
         {
