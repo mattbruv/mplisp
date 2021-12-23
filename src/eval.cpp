@@ -151,6 +151,7 @@ Expr* funcSub(Expr* expr, Environment* env)
     auto list = *expr->as.list.exprs;
 
     double sum = 0;
+    bool populated = false;
     auto iter = list.begin();
 
     for (iter++; iter != list.end(); iter++)
@@ -160,6 +161,13 @@ Expr* funcSub(Expr* expr, Environment* env)
 
         if (type != ExprType::Number)
             throw std::runtime_error("+: Invalid expression given: " + type);
+
+        if (!populated)
+        {
+            populated = true;
+            sum = numberToDouble(value);
+            continue;
+        }
 
         sum -= numberToDouble(value);
     }
