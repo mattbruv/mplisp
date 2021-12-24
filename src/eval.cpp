@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 
+#include "globals.h"
 #include "eval.h"
 #include "expr.h"
 
@@ -24,6 +25,12 @@ auto StdMap = std::map<std::string, STDFunc>{
 
 Expr* eval(Expr* expr, Environment* env)
 {
+    if (verbose())
+    {
+        std::cout << "evaluating: ";
+        printExpr(expr, true);
+    }
+
     switch (expr->type)
     {
     case ExprType::Symbol:
@@ -64,7 +71,9 @@ Expr* evalList(Expr* expr, Environment* env)
 
         auto test = std::string("lambda").compare(*value->as.symbol.name) == 0;
         if (test)
+        {
             return expr;
+        }
 
         // test to see if the first item in the list is a lambda.
         // if so, evaluate it...
@@ -84,60 +93,60 @@ Expr* evalList(Expr* expr, Environment* env)
             }
         }
 
+        Expr* first = list->front();
+
+        // if the first item is a symbol, it's a function call
+        if (first->type == ExprType::Symbol)
+        {
+            // If in global map
+            auto search = StdMap.find(*first->as.symbol.name);
+
+            if (search != StdMap.end())
+            {
+                auto func = StdMap[*first->as.symbol.name];
+                switch (func)
+                {
+                case STDFunc::ADD:
+                {
+                    auto res = funcAdd(expr, env);
+                    return res;
+                    break;
+                }
+                case STDFunc::SUB:
+                {
+                    auto res = funcSub(expr, env);
+                    return res;
+                }
+                case STDFunc::MUL:
+                {
+                    auto res = funcMul(expr, env);
+                    return res;
+                }
+                case STDFunc::DIV:
+                {
+                    auto res = funcDiv(expr, env);
+                    return res;
+                }
+                case STDFunc::LAMBDA:
+                {
+                    std::cout << "lambda eval?" << std::endl;
+                    return expr;
+                }
+                default:
+                {
+                    throw std::runtime_error("No global function defined for: " +
+                                             *first->as.symbol.name);
+                    break;
+                }
+                }
+            }
+        }
+
         Expr* evaled = eval(value, env);
         // TODO: this would cause bugs, figure out how to manage memory
         //delete (*iter); // free memory at the old expression pointer
-        *value = *evaled;
+        (*iter) = evaled;
     };
-
-    // if the first item is a symbol, it's a function call
-    Expr* first = list->front();
-
-    if (first->type == ExprType::Symbol)
-    {
-        // If in global map
-        auto search = StdMap.find(*first->as.symbol.name);
-
-        if (search != StdMap.end())
-        {
-            auto func = StdMap[*first->as.symbol.name];
-            switch (func)
-            {
-            case STDFunc::ADD:
-            {
-                auto res = funcAdd(expr, env);
-                return res;
-                break;
-            }
-            case STDFunc::SUB:
-            {
-                auto res = funcSub(expr, env);
-                return res;
-            }
-            case STDFunc::MUL:
-            {
-                auto res = funcMul(expr, env);
-                return res;
-            }
-            case STDFunc::DIV:
-            {
-                auto res = funcDiv(expr, env);
-                return res;
-            }
-            case STDFunc::LAMBDA:
-            {
-                std::cout << "lambda eval?" << std::endl;
-                return expr;
-            }
-            default:
-            {
-                throw std::runtime_error("No global function defined for: " +
-                                         *first->as.symbol.name);
-                break;
-            }
-            }
-        }
-    }
 
     return expr;
 }
@@ -162,11 +171,10 @@ Expr* funcAdd(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        auto type = (*iter)->type;
-        Expr* value = *iter;
+        Expr* value = eval((*iter), env);
 
-        if (type != ExprType::Number)
-            throw std::runtime_error("+: Invalid expression given: " + type);
+        if (value->type != ExprType::Number)
+            throw std::runtime_error("+: Invalid expression given: " + value->type);
 
         sum += numberToDouble(value);
     }
@@ -189,11 +197,10 @@ Expr* funcSub(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        auto type = (*iter)->type;
-        Expr* value = *iter;
+        Expr* value = eval((*iter), env);
 
-        if (type != ExprType::Number)
-            throw std::runtime_error("+: Invalid expression given: " + type);
+        if (value->type != ExprType::Number)
+            throw std::runtime_error("+: Invalid expression given: " + value->type);
 
         if (!populated)
         {
@@ -222,11 +229,10 @@ Expr* funcMul(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        auto type = (*iter)->type;
-        Expr* value = *iter;
+        Expr* value = eval((*iter), env);
 
-        if (type != ExprType::Number)
-            throw std::runtime_error("+: Invalid expression given: " + type);
+        if (value->type != ExprType::Number)
+            throw std::runtime_error("+: Invalid expression given: " + value->type);
 
         sum *= numberToDouble(value);
     }
@@ -249,11 +255,10 @@ Expr* funcDiv(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        auto type = (*iter)->type;
-        Expr* value = *iter;
+        Expr* value = eval((*iter), env);
 
-        if (type != ExprType::Number)
-            throw std::runtime_error("+: Invalid expression given: " + type);
+        if (value->type != ExprType::Number)
+            throw std::runtime_error("+: Invalid expression given: " + value->type);
 
         if (!populated)
         {
@@ -329,11 +334,11 @@ Expr* evalLambda(Expr* expr, Environment* env)
     // Finally, eval body with new closure environment and return result
     funcIter++;
     auto body = (*funcIter);
-    std::cout << "body: ";
-    printExpr(body, true);
+    //std::cout << "body: ";
+    //printExpr(body, true);
     auto result = eval(body, closure);
-    std::cout << "result: ";
-    printExpr(result, true);
+    //std::cout << "result: ";
+    //printExpr(result, true);
 
     return result;
 }
