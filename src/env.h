@@ -14,4 +14,5 @@ public:
     std::set<std::string> reservedSymbols;
     std::map<std::string, Expr*> variables;
     Expr* getVariable(Expr* sym);
+    bool isReservedWord(std::string key);
 };

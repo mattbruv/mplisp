@@ -362,6 +362,12 @@ Expr* funcDefine(Expr* expr, Environment* env)
     }
 
     auto name = *var->as.symbol.name;
+
+    if (env->isReservedWord(name))
+    {
+        throw std::runtime_error("Define argument cannot be a reserved word!");
+    }
+
     iter++;
     auto value = eval((*iter), env);
     env->variables[name] = value;

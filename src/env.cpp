@@ -17,6 +17,11 @@ Environment::Environment(Environment* parent)
     this->reservedSymbols.insert("define");
 }
 
+bool Environment::isReservedWord(std::string key)
+{
+    return this->reservedSymbols.find(key) != this->reservedSymbols.end();
+}
+
 Expr* Environment::getVariable(Expr* sym)
 {
     auto name = *sym->as.symbol.name;
