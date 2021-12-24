@@ -60,7 +60,7 @@ bool Parser::match(TokenType type)
 
 bool Parser::isAtEnd()
 {
-    return (size_t)current == tokens.size() - 1;
+    return (size_t)current == tokens.size();
 }
 
 Token Parser::peek()
