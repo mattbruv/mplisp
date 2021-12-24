@@ -14,6 +14,7 @@ enum STDFunc
     DIV,
     LAMBDA,
     DEFINE,
+    QUOTE,
 };
 
 auto StdMap = std::map<std::string, STDFunc>{
@@ -23,6 +24,7 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "/", STDFunc::DIV }, //
     { "lambda", STDFunc::LAMBDA }, //
     { "define", STDFunc::DEFINE }, //
+    { "quote", STDFunc::QUOTE }, //
 };
 
 Expr* eval(Expr* expr, Environment* env)
@@ -137,6 +139,13 @@ Expr* evalList(Expr* expr, Environment* env)
                 case STDFunc::DEFINE:
                 {
                     return funcDefine(expr, env);
+                }
+                case STDFunc::QUOTE:
+                {
+                    auto iter = list->begin();
+                    iter++;
+                    return (*iter);
+                    break;
                 }
                 default:
                 {
