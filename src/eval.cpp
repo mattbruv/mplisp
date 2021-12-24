@@ -325,7 +325,7 @@ Expr* evalLambda(Expr* expr, Environment* env)
             throw std::runtime_error("Too few arguments given to lambda!");
         }
 
-        auto argument = eval((*iter), env);
+        auto argument = eval((*iter++), env);
 
         // add this argument to the closure environment
         closure->variables[*argSym->as.symbol.name] = argument;

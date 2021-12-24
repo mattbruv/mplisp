@@ -2,7 +2,7 @@
 ;multiple lines
 
 
-((lambda (x) (- x 2)) 30)
+((lambda (x y) (* x y)) 30 2)
 
 ;(+ (- 3) 1 (* 4 4) (/ 20 2))
 
