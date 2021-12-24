@@ -410,6 +410,10 @@ bool isExprTrue(Expr* expr)
 {
     switch (expr->type)
     {
+    case ExprType::Boolean:
+    {
+        return expr->as.boolean.value;
+    }
     case ExprType::Number:
     {
         if (expr->as.number.isInt)
@@ -423,7 +427,7 @@ bool isExprTrue(Expr* expr)
     }
     default:
     {
-        return false;
+        return true;
     }
     };
 }
