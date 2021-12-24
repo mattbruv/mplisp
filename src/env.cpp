@@ -13,6 +13,7 @@ Environment::Environment(Environment* parent)
     this->reservedSymbols.insert("-");
     this->reservedSymbols.insert("*");
     this->reservedSymbols.insert("/");
+    this->reservedSymbols.insert("lambda");
 }
 
 Expr* Environment::getVariable(Expr* sym)

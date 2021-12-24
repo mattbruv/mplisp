@@ -11,6 +11,7 @@ enum STDFunc
     SUB,
     MUL,
     DIV,
+    LAMBDA,
 };
 
 auto StdMap = std::map<std::string, STDFunc>{
@@ -18,6 +19,7 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "-", STDFunc::SUB }, //
     { "*", STDFunc::MUL }, //
     { "/", STDFunc::DIV }, //
+    { "lambda", STDFunc::LAMBDA }, //
 };
 
 Expr* eval(Expr* expr, Environment* env)
@@ -70,6 +72,7 @@ Expr* evalList(Expr* expr, Environment* env)
     {
         // If in global map
         auto search = StdMap.find(*first->as.symbol.name);
+
         if (search != StdMap.end())
         {
             auto func = StdMap[*first->as.symbol.name];

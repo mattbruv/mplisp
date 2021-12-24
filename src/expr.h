@@ -63,9 +63,6 @@ typedef struct Expr
         struct ExprSymbol symbol;
         struct ExprNumber number;
         struct ExprList list;
-        // struct ExprConditional conditional;
-        // struct ExprProcedure procedure;
-        // struct ExprDefinition definition;
 
         // The compmiler can't create constructor
         // for unions with non-static data members
