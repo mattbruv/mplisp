@@ -10,12 +10,12 @@ class Parser
 public:
     Parser(std::vector<Token> tokens);
     Expr* parse();
+    bool isAtEnd();
 
 private:
     int current = 0;
     std::vector<Token> tokens;
 
-    bool isAtEnd();
     Token peek();
     Token previous();
     Token advance();

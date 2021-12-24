@@ -52,18 +52,19 @@ int main(int argc, char* argv[])
         {
             // Global default environment
             Environment* globalEnv = new Environment(nullptr);
-            Expr* foo = new Expr();
-            foo->type = ExprType::Number;
-            foo->as.number.isInt = true;
-            foo->as.number.as.intValue = 420;
-            globalEnv->variables["foo"] = foo;
 
             std::vector<Token> tokens = tokenize(source);
             auto parser = new Parser(tokens);
-            Expr* result = parser->parse();
-            printExpr(result, true);
-            Expr* evaled = eval(result, globalEnv);
-            printExpr(evaled, true);
+
+            // parse all expressions in the file
+            while (!parser->isAtEnd())
+            {
+                Expr* result = parser->parse();
+                if (verbose())
+                    printExpr(result, true);
+                Expr* evaled = eval(result, globalEnv);
+                printExpr(evaled, true);
+            }
         }
         catch (std::runtime_error const& error)
         {
