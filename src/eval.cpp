@@ -47,6 +47,11 @@ Expr* eval(Expr* expr, Environment* env)
         return expr;
         break;
     }
+    case ExprType::Boolean:
+    {
+        return expr;
+        break;
+    }
     case ExprType::List:
     {
         return evalList(expr, env);
@@ -399,4 +404,26 @@ Expr* funcDefine(Expr* expr, Environment* env)
     env->variables[name] = value;
 
     return value;
+}
+
+bool isExprTrue(Expr* expr)
+{
+    switch (expr->type)
+    {
+    case ExprType::Number:
+    {
+        if (expr->as.number.isInt)
+        {
+            return expr->as.number.as.intValue != 0;
+        }
+        else
+        {
+            return expr->as.number.as.doubleValue != 0;
+        }
+    }
+    default:
+    {
+        return false;
+    }
+    };
 }

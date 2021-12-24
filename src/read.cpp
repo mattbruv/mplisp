@@ -13,6 +13,8 @@ struct tokenRegex tokenRegexes[] = {
     { TokenType::PAREN_LEFT, "\\(" }, //
     { TokenType::PAREN_RIGHT, "\\)" }, //
     { TokenType::QUOTE, "\'" }, //
+    { TokenType::BOOLEAN, "false" }, //
+    { TokenType::BOOLEAN, "true" }, //
     { TokenType::SYMBOL_NUMBER, "[^\\s\\[\\]{}('\"`,;)]+" }, //
     { TokenType::STRING, "\\\".*\\\"" } //
 };

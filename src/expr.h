@@ -10,9 +10,7 @@ enum ExprType
     Symbol,
     Number,
     List,
-    Conditional,
-    Definition,
-    Procedure
+    Boolean,
 };
 
 struct ExprSymbol
@@ -55,6 +53,11 @@ struct ExprList
     std::vector<Expr*>* exprs;
 };
 
+struct ExprBool
+{
+    bool value;
+};
+
 typedef struct Expr
 {
     ExprType type;
@@ -63,6 +66,7 @@ typedef struct Expr
         struct ExprSymbol symbol;
         struct ExprNumber number;
         struct ExprList list;
+        struct ExprBool boolean;
 
         // The compmiler can't create constructor
         // for unions with non-static data members

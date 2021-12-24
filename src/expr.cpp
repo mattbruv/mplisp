@@ -30,6 +30,11 @@ void printExpr(Expr* expr, bool newline)
         std::cout << "sym: " << *expr->as.symbol.name;
         break;
     }
+    case ExprType::Boolean:
+    {
+        std::cout << "bool: " << ((expr->as.boolean.value) ? "true" : "false");
+        break;
+    }
     case ExprType::List:
     {
         std::cout << "(";

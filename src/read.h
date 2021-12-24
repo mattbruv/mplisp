@@ -10,6 +10,7 @@ enum TokenType
     PAREN_LEFT,
     PAREN_RIGHT,
     QUOTE,
+    BOOLEAN,
     SYMBOL_NUMBER,
     STRING,
 };

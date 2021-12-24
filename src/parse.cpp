@@ -16,6 +16,21 @@ Expr* Parser::parse()
     Expr* expr = new Expr();
     auto token = peek();
     //std::cout << "parse() " << token.content << std::endl;
+    if (token.type == TokenType::BOOLEAN)
+    {
+        advance();
+        expr->type = ExprType::Boolean;
+
+        if (std::string("true").compare(token.content) == 0)
+        {
+            expr->as.boolean.value = true;
+        }
+        else
+        {
+            expr->as.boolean.value = false;
+        }
+        return expr;
+    }
 
     if (token.type == TokenType::SYMBOL_NUMBER)
     {
