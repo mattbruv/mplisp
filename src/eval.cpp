@@ -14,6 +14,7 @@ enum STDFunc
     DIV,
     LAMBDA,
     DEFINE,
+    GREATERTHAN,
     QUOTE,
     IF,
 };
@@ -23,6 +24,7 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "-", STDFunc::SUB }, //
     { "*", STDFunc::MUL }, //
     { "/", STDFunc::DIV }, //
+    { ">", STDFunc::GREATERTHAN }, //
     { "lambda", STDFunc::LAMBDA }, //
     { "define", STDFunc::DEFINE }, //
     { "quote", STDFunc::QUOTE }, //
@@ -142,6 +144,10 @@ Expr* evalList(Expr* expr, Environment* env)
                 {
                     //std::cout << "lambda eval?" << std::endl;
                     return expr;
+                }
+                case STDFunc::GREATERTHAN:
+                {
+                    return funcGreaterThan(expr, env);
                 }
                 case STDFunc::IF:
                 {
@@ -467,4 +473,31 @@ Expr* evalIf(Expr* expr, Environment* env)
     {
         return eval(branchFalse, env);
     }
+}
+
+Expr* funcGreaterThan(Expr* expr, Environment* env)
+{
+    auto list = expr->as.list.exprs;
+
+    if (list->size() != 3)
+    {
+        throw std::runtime_error(">: Expected 2 arguments, got " + (list->size() - 1));
+    }
+
+    auto iter = list->begin();
+    iter++;
+
+    auto arg1 = (*iter++);
+    auto arg2 = (*iter);
+
+    if (arg1->type != ExprType::Number)
+        throw std::runtime_error("> first argument not number!");
+
+    if (arg2->type != ExprType::Number)
+        throw std::runtime_error("> first argument not number!");
+
+    Expr* result = new Expr();
+    result->type = ExprType::Boolean;
+    result->as.boolean.value = numberToDouble(arg1) > numberToDouble(arg2);
+    return result;
 }
