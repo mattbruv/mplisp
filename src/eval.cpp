@@ -453,7 +453,7 @@ Expr* evalIf(Expr* expr, Environment* env)
     if (iter == list->end())
         throw std::runtime_error("if statement missing condition");
 
-    auto cond = (*iter++);
+    auto cond = eval((*iter++), env);
 
     if (iter == list->end())
         throw std::runtime_error("if statement missing true branch");
@@ -487,8 +487,8 @@ Expr* funcGreaterThan(Expr* expr, Environment* env)
     auto iter = list->begin();
     iter++;
 
-    auto arg1 = (*iter++);
-    auto arg2 = (*iter);
+    auto arg1 = eval((*iter++), env);
+    auto arg2 = eval((*iter), env);
 
     if (arg1->type != ExprType::Number)
         throw std::runtime_error("> first argument not number!");
@@ -499,5 +499,7 @@ Expr* funcGreaterThan(Expr* expr, Environment* env)
     Expr* result = new Expr();
     result->type = ExprType::Boolean;
     result->as.boolean.value = numberToDouble(arg1) > numberToDouble(arg2);
+    //printExpr(arg1, false);
+    //printExpr(arg2, false);
     return result;
 }

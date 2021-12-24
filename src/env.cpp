@@ -9,6 +9,7 @@ Environment::Environment(Environment* parent)
 {
     this->parent = parent;
     this->variables = std::map<std::string, Expr*>();
+    this->reservedSymbols = std::set<std::string>();
     this->reservedSymbols.insert("+");
     this->reservedSymbols.insert("-");
     this->reservedSymbols.insert("*");
@@ -22,7 +23,7 @@ Environment::Environment(Environment* parent)
 
 bool Environment::isReservedWord(std::string key)
 {
-    std::cout << key << std::endl;
+    //std::cout << key << std::endl;
     return this->reservedSymbols.find(key) != this->reservedSymbols.end();
 }
 

@@ -24,6 +24,30 @@ void printHelp()
     std::cout << std::endl;
 }
 
+void applyFile(std::string path, Environment* env)
+{
+    std::vector<Token> tokens = tokenize(readFile(path));
+    auto parser = new Parser(tokens);
+
+    // parse all expressions in the file
+    while (!parser->isAtEnd())
+    {
+        Expr* result = parser->parse();
+        eval(result, env);
+    }
+
+    // set all new definitions as reserved
+    for (auto x : env->variables)
+    {
+        //std::cout << x.first << std::endl;
+        // for some reason inserting new items into my set
+        // crashes my program... not sure why.
+        //env->reservedSymbols.insert(x.first);
+    }
+
+    delete parser;
+}
+
 int main(int argc, char* argv[])
 {
     if (argc > 1)
@@ -52,6 +76,7 @@ int main(int argc, char* argv[])
         {
             // Global default environment
             Environment* globalEnv = new Environment(nullptr);
+            applyFile("std/comparison.scm", globalEnv);
 
             std::vector<Token> tokens = tokenize(source);
             auto parser = new Parser(tokens);
