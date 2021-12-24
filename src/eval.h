@@ -5,6 +5,7 @@
 
 Expr* eval(Expr* expression, Environment* env);
 Expr* evalList(Expr* expr, Environment* env);
+Expr* evalLambda(Expr* expr, Environment* env);
 Expr* funcAdd(Expr* expr, Environment* env);
 Expr* funcSub(Expr* expr, Environment* env);
 Expr* funcMul(Expr* expr, Environment* env);

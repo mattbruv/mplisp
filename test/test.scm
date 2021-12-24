@@ -2,7 +2,7 @@
 ;multiple lines
 
 
-(lambda () (+ 1 2))
+((lambda (x) (+ x 1)) (+ 1 2))
 
 ;(+ (- 3) 1 (* 4 4) (/ 20 2))
 

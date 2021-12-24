@@ -59,10 +59,30 @@ Expr* evalList(Expr* expr, Environment* env)
     // Recursively evaluate all expressions in this list
     for (auto iter = list->begin(); iter != list->end(); iter++)
     {
-        Expr* evaled = eval((*iter), env);
+        Expr* value = (*iter);
+
+        // test to see if the first item in the list is a lambda.
+        // if so, evaluate it...
+        if (value->type == ExprType::List)
+        {
+            auto list = *value->as.list.exprs;
+
+            if (list.size() > 0)
+            {
+                auto first = (*list.begin());
+                auto test = std::string("lambda").compare(*first->as.symbol.name) == 0;
+
+                if (first->type == ExprType::Symbol && test)
+                {
+                    evalLambda(expr, env);
+                }
+            }
+        }
+
+        Expr* evaled = eval(value, env);
         // TODO: this would cause bugs, figure out how to manage memory
         //delete (*iter); // free memory at the old expression pointer
-        (*iter) = evaled;
+        *value = *evaled;
     };
 
     // if the first item is a symbol, it's a function call
@@ -98,6 +118,12 @@ Expr* evalList(Expr* expr, Environment* env)
             {
                 auto res = funcDiv(expr, env);
                 return res;
+            }
+            case STDFunc::LAMBDA:
+            {
+                //auto res = evalLambda(expr, env);
+                //return res;
+                break;
             }
             default:
             {
@@ -243,4 +269,39 @@ Expr* funcDiv(Expr* expr, Environment* env)
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
     return result;
+}
+
+Expr* evalLambda(Expr* expr, Environment* env)
+{
+    // Create new environment for this lambda.
+    Environment* closure = new Environment(env);
+
+    auto list = *expr->as.list.exprs;
+    auto iter = list.begin();
+
+    auto function = (*iter);
+    auto funcList = *function->as.list.exprs;
+    auto funcIter = funcList.begin();
+    funcIter++;
+
+    auto funcArgs = (*funcIter);
+
+    if (funcArgs->type != ExprType::List)
+    {
+        throw std::runtime_error("First expression in lambda must be a list of args!");
+    }
+
+    iter++;
+
+    auto argsList = *funcArgs->as.list.exprs;
+    auto funcArgsIter = argsList.begin();
+    for (funcArgsIter; funcArgsIter != argsList.end(); funcArgsIter++)
+    {
+        // get the next argument
+        auto argument = (*iter);
+        printExpr((*funcArgsIter), true);
+        printExpr(argument, true);
+    }
+
+    return expr;
 }
