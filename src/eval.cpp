@@ -444,8 +444,19 @@ Expr* evalIf(Expr* expr, Environment* env)
     auto iter = list->begin();
     iter++;
 
+    if (iter == list->end())
+        throw std::runtime_error("if statement missing condition");
+
     auto cond = (*iter++);
+
+    if (iter == list->end())
+        throw std::runtime_error("if statement missing true branch");
+
     auto branchTrue = (*iter++);
+
+    if (iter == list->end())
+        throw std::runtime_error("if statement missing false branch");
+
     auto branchFalse = (*iter++);
 
     if (isExprTrue(cond))
