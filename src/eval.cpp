@@ -13,6 +13,7 @@ enum STDFunc
     MUL,
     DIV,
     LAMBDA,
+    DEFINE,
 };
 
 auto StdMap = std::map<std::string, STDFunc>{
@@ -21,6 +22,7 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "*", STDFunc::MUL }, //
     { "/", STDFunc::DIV }, //
     { "lambda", STDFunc::LAMBDA }, //
+    { "define", STDFunc::DEFINE }, //
 };
 
 Expr* eval(Expr* expr, Environment* env)
@@ -129,8 +131,12 @@ Expr* evalList(Expr* expr, Environment* env)
                 }
                 case STDFunc::LAMBDA:
                 {
-                    std::cout << "lambda eval?" << std::endl;
+                    //std::cout << "lambda eval?" << std::endl;
                     return expr;
+                }
+                case STDFunc::DEFINE:
+                {
+                    return funcDefine(expr, env);
                 }
                 default:
                 {
@@ -341,4 +347,24 @@ Expr* evalLambda(Expr* expr, Environment* env)
     //printExpr(result, true);
 
     return result;
+}
+
+Expr* funcDefine(Expr* expr, Environment* env)
+{
+    auto list = *expr->as.list.exprs;
+    auto iter = list.begin();
+    iter++;
+
+    auto var = (*iter);
+    if (var->type != ExprType::Symbol)
+    {
+        throw std::runtime_error("Define argument is not a symbol!");
+    }
+
+    auto name = *var->as.symbol.name;
+    iter++;
+    auto value = eval((*iter), env);
+    env->variables[name] = value;
+
+    return value;
 }

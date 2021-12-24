@@ -1,8 +1,9 @@
 ;testing comments
 ;multiple lines
 
-((lambda (x) (+ x 1)) 5)
-(+ 1 (- 0 2))
+(define foo 30)
+
+((lambda (x) (+ x foo)) 5)
 
 ; (32 59 420.69 (foo ((nested symbols) 3 4)))
 

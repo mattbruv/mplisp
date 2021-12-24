@@ -10,3 +10,4 @@ Expr* funcAdd(Expr* expr, Environment* env);
 Expr* funcSub(Expr* expr, Environment* env);
 Expr* funcMul(Expr* expr, Environment* env);
 Expr* funcDiv(Expr* expr, Environment* env);
+Expr* funcDefine(Expr* expr, Environment* env);

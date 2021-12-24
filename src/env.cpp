@@ -14,6 +14,7 @@ Environment::Environment(Environment* parent)
     this->reservedSymbols.insert("*");
     this->reservedSymbols.insert("/");
     this->reservedSymbols.insert("lambda");
+    this->reservedSymbols.insert("define");
 }
 
 Expr* Environment::getVariable(Expr* sym)
