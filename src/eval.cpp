@@ -15,6 +15,7 @@ enum STDFunc
     LAMBDA,
     DEFINE,
     QUOTE,
+    IF,
 };
 
 auto StdMap = std::map<std::string, STDFunc>{
@@ -25,6 +26,7 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "lambda", STDFunc::LAMBDA }, //
     { "define", STDFunc::DEFINE }, //
     { "quote", STDFunc::QUOTE }, //
+    { "if", STDFunc::IF }, //
 };
 
 Expr* eval(Expr* expr, Environment* env)
@@ -140,6 +142,10 @@ Expr* evalList(Expr* expr, Environment* env)
                 {
                     //std::cout << "lambda eval?" << std::endl;
                     return expr;
+                }
+                case STDFunc::IF:
+                {
+                    return evalIf(expr, env);
                 }
                 case STDFunc::DEFINE:
                 {
@@ -430,4 +436,24 @@ bool isExprTrue(Expr* expr)
         return true;
     }
     };
+}
+
+Expr* evalIf(Expr* expr, Environment* env)
+{
+    auto list = expr->as.list.exprs;
+    auto iter = list->begin();
+    iter++;
+
+    auto cond = (*iter++);
+    auto branchTrue = (*iter++);
+    auto branchFalse = (*iter++);
+
+    if (isExprTrue(cond))
+    {
+        return eval(branchTrue, env);
+    }
+    else
+    {
+        return eval(branchFalse, env);
+    }
 }

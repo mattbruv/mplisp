@@ -16,6 +16,7 @@ Environment::Environment(Environment* parent)
     this->reservedSymbols.insert("lambda");
     this->reservedSymbols.insert("define");
     this->reservedSymbols.insert("quote");
+    this->reservedSymbols.insert("if");
 }
 
 bool Environment::isReservedWord(std::string key)

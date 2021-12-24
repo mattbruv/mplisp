@@ -1,6 +1,5 @@
 ;testing comments
 ;multiple lines
 
-true
 
-false
+(if true 420 69)
