@@ -146,6 +146,23 @@ Expr* evalList(Expr* expr, Environment* env)
                 }
                 }
             }
+            // otherwise
+            // it's a custom function call.
+            else
+            {
+                auto func = env->getVariable(first);
+                auto anon = new Expr();
+                anon->type = ExprType::List;
+                anon->as.list.exprs = new std::vector<Expr*>();
+                anon->as.list.exprs->push_back(func);
+                auto iter = list->begin();
+                iter++;
+                while (iter != list->end())
+                {
+                    anon->as.list.exprs->push_back((*iter++));
+                }
+                return evalLambda(anon, env);
+            }
         }
 
         Expr* evaled = eval(value, env);
