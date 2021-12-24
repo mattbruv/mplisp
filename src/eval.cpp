@@ -57,9 +57,14 @@ Expr* evalList(Expr* expr, Environment* env)
         return expr;
 
     // Recursively evaluate all expressions in this list
+    // ONLY if it's not a lambda function
     for (auto iter = list->begin(); iter != list->end(); iter++)
     {
         Expr* value = (*iter);
+
+        auto test = std::string("lambda").compare(*value->as.symbol.name) == 0;
+        if (test)
+            return expr;
 
         // test to see if the first item in the list is a lambda.
         // if so, evaluate it...
@@ -74,7 +79,7 @@ Expr* evalList(Expr* expr, Environment* env)
 
                 if (first->type == ExprType::Symbol && test)
                 {
-                    evalLambda(expr, env);
+                    return evalLambda(expr, env);
                 }
             }
         }
@@ -121,9 +126,8 @@ Expr* evalList(Expr* expr, Environment* env)
             }
             case STDFunc::LAMBDA:
             {
-                //auto res = evalLambda(expr, env);
-                //return res;
-                break;
+                std::cout << "lambda eval?" << std::endl;
+                return expr;
             }
             default:
             {
@@ -295,13 +299,41 @@ Expr* evalLambda(Expr* expr, Environment* env)
 
     auto argsList = *funcArgs->as.list.exprs;
     auto funcArgsIter = argsList.begin();
-    for (funcArgsIter; funcArgsIter != argsList.end(); funcArgsIter++)
+
+    // apply all the arguments to this lambda.
+    for (; funcArgsIter != argsList.end(); funcArgsIter++)
     {
         // get the next argument
-        auto argument = (*iter);
-        printExpr((*funcArgsIter), true);
-        printExpr(argument, true);
+        auto argSym = (*funcArgsIter);
+
+        if (argSym->type != ExprType::Symbol)
+        {
+            throw std::runtime_error("Lambda argument definition must be a symbol!");
+        }
+
+        // make sure user actually gave an argument before processing it
+        if (iter == list.end())
+        {
+            std::cout << "Missing argument '";
+            printExpr(argSym, false);
+            std::cout << "'" << std::endl;
+            throw std::runtime_error("Too few arguments given to lambda!");
+        }
+
+        auto argument = eval((*iter), env);
+
+        // add this argument to the closure environment
+        closure->variables[*argSym->as.symbol.name] = argument;
     }
 
-    return expr;
+    // Finally, eval body with new closure environment and return result
+    funcIter++;
+    auto body = (*funcIter);
+    std::cout << "body: ";
+    printExpr(body, true);
+    auto result = eval(body, closure);
+    std::cout << "result: ";
+    printExpr(result, true);
+
+    return result;
 }
