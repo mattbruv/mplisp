@@ -7,6 +7,7 @@ VM::VM()
 {
     this->stack = std::vector<Expr*>();
     this->firstExpr = nullptr;
+    this->gcThreshold = 100000;
 }
 
 void VM::push(Expr* expr)
@@ -30,6 +31,11 @@ size_t VM::size()
 
 Expr* VM::newExpr(ExprType type)
 {
+    if ((int)this->size() == this->gcThreshold)
+    {
+        this->GC();
+    }
+
     Expr* expr = new Expr();
     expr->type = type;
     expr->marked = false;
@@ -39,6 +45,16 @@ Expr* VM::newExpr(ExprType type)
     this->firstExpr = expr;
 
     return expr;
+}
+
+void VM::GC()
+{
+    std::cout << "GC called! threshold: " << this->gcThreshold << std::endl;
+
+    markAll();
+    sweep();
+
+    this->gcThreshold = (int)this->size() * 2;
 }
 
 void VM::sweep()

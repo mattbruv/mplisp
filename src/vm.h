@@ -15,6 +15,7 @@ public:
     size_t size();
     Expr* newExpr(ExprType type);
     void markAll();
+    void GC();
 
 private:
     std::vector<Expr*> stack;
@@ -22,6 +23,6 @@ private:
     void mark(Expr* expr);
     void free(Expr* expr);
     void sweep();
-};
 
-void foo();
+    int gcThreshold;
+};

@@ -75,16 +75,13 @@ int main(int argc, char* argv[])
 
         try
         {
-            VM vm;
-
-            Expr* test = new Expr();
-            test->type = ExprType::Boolean;
+            Expr* test = vm.newExpr(ExprType::Boolean);
             test->as.boolean.value = true;
             std::cout << test->marked << std::endl;
             vm.push(test);
+            vm.markAll();
             //auto pointer = vm.pop();
             //delete pointer;
-            vm.markAll();
             std::cout << test->marked << std::endl;
 
             return 0;
