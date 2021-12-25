@@ -113,7 +113,9 @@ void VM::free(Expr* expr)
             this->free(x);
         }
 
+        delete expr->as.list.exprs;
         delete expr;
+
         break;
     }
     case ExprType::Number:
