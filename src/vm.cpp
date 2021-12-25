@@ -53,8 +53,11 @@ Expr* VM::newExpr(ExprType type)
 
 void VM::GC()
 {
+    std::cout << "do gc, threshold: " << this->gcThreshold << std::endl;
     markAll();
+    std::cout << "markAll() done" << std::endl;
     sweep();
+    std::cout << "sweep() done" << std::endl;
 
     this->gcThreshold = this->objectCount * 2;
 }
@@ -64,14 +67,15 @@ void VM::sweep()
     this->freedPointers.clear();
     Expr** expr = &this->firstExpr;
 
-    //int i = 0;
+    int i = 0;
     while (*expr)
     {
-        //std::cout << "sweep: " << i++;
-        //std::cout << " this : " << *expr;
-        //std::cout << " next : " << (*expr)->next << " ";
+        std::cout << "sweep: " << i++;
+        std::cout << " this : " << *expr;
+        std::cout << " next : " << (*expr)->next << " ";
+        std::cout << "next in set? "
+                  << (this->freedPointers.find((*expr)->next) != this->freedPointers.end());
         //printExpr(*expr, false);
-        //std::cout << std::endl;
         //printExpr(*expr, true);
         if (!(*expr)->marked)
         {
@@ -80,12 +84,7 @@ void VM::sweep()
             Expr* unreached = *expr;
             *expr = unreached->next;
 
-            if (this->freedPointers.find(*expr) != this->freedPointers.end())
-            {
-                this->free(unreached);
-                freedPointers.insert(*expr);
-            }
-            //std::cout << "done with free" << std::endl;
+            this->free(unreached);
         }
         else
         {
@@ -95,21 +94,30 @@ void VM::sweep()
             (*expr)->marked = false;
             expr = &(*expr)->next;
         }
+        std::cout << std::endl;
         //std::cout << "Got to end!" << std::endl;
     }
 }
 
 void VM::free(Expr* expr)
 {
-    std::cout << "free address" << expr << std::endl;
+    if (this->freedPointers.find(expr) != this->freedPointers.end())
+    {
+        return;
+    }
+    freedPointers.insert(expr);
+
+    // std::cout << "free address" << expr << std::endl;
     switch (expr->type)
     {
     case ExprType::List:
     {
         auto contents = *expr->as.list.exprs;
 
+        //std::cout << "free list stuff" << expr << std::endl;
         for (auto x : contents)
         {
+            //std::cout << "list element" << x << std::endl;
             this->free(x);
         }
 
