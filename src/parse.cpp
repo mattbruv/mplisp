@@ -47,6 +47,22 @@ Expr* Parser::parse()
         return expr;
     }
 
+    if (token.type == TokenType::QUOTE)
+    {
+        advance();
+        Expr* result = this->parse();
+        expr->type = ExprType::List;
+        expr->as.list.exprs = new std::vector<Expr*>();
+        auto quote = new Expr();
+        quote->type = ExprType::Symbol;
+        quote->as.symbol.name = new std::string("quote");
+
+        expr->as.list.exprs->push_back(quote);
+        expr->as.list.exprs->push_back(result);
+
+        return expr;
+    }
+
     consume(TokenType::PAREN_LEFT, "Expected (, found " + token.content);
     expr->type = ExprType::List;
     // Don't forget to initialize your variables or bad things happen
