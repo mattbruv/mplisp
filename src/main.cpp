@@ -8,6 +8,7 @@
 #include "expr.h"
 #include "read.h"
 #include "parse.h"
+#include "vm.h"
 
 void printHelp()
 {
@@ -74,6 +75,20 @@ int main(int argc, char* argv[])
 
         try
         {
+            VM vm;
+
+            Expr* test = new Expr();
+            test->type = ExprType::Boolean;
+            test->as.boolean.value = true;
+            std::cout << test->marked << std::endl;
+            vm.push(test);
+            //auto pointer = vm.pop();
+            //delete pointer;
+            vm.markAll();
+            std::cout << test->marked << std::endl;
+
+            return 0;
+
             // Global default environment
             Environment* globalEnv = new Environment(nullptr);
             applyFile("std/comparison.scm", globalEnv);

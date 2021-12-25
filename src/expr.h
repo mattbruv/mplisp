@@ -28,6 +28,7 @@ struct ExprNumber
     } as;
 };
 
+/*
 struct ExprConditional
 {
     Expr* exprTest;
@@ -46,7 +47,7 @@ struct ExprDefinition
 {
     Expr* name;
     Expr* value;
-};
+}; */
 
 struct ExprList
 {
@@ -61,6 +62,8 @@ struct ExprBool
 typedef struct Expr
 {
     ExprType type;
+    bool marked = false;
+
     union as
     {
         struct ExprSymbol symbol;
