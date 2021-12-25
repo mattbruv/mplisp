@@ -34,7 +34,7 @@ void applyFile(std::string path, Environment* env)
     while (!parser->isAtEnd())
     {
         Expr* result = parser->parse();
-        eval(result, env);
+        vm.push(eval(result, env));
     }
 
     // set all new definitions as reserved
@@ -75,17 +75,6 @@ int main(int argc, char* argv[])
 
         try
         {
-            Expr* test = vm.newExpr(ExprType::Boolean);
-            test->as.boolean.value = true;
-            std::cout << test->marked << std::endl;
-            vm.push(test);
-            vm.markAll();
-            //auto pointer = vm.pop();
-            //delete pointer;
-            std::cout << test->marked << std::endl;
-
-            return 0;
-
             // Global default environment
             Environment* globalEnv = new Environment(nullptr);
             applyFile("std/comparison.scm", globalEnv);
@@ -102,7 +91,10 @@ int main(int argc, char* argv[])
                 if (verbose())
                     printExpr(result, true);
                 Expr* evaled = eval(result, globalEnv);
+                vm.push(evaled);
                 printExpr(evaled, true);
+                if (verbose())
+                    std::cout << "vm size: " << vm.size() << std::endl;
             }
         }
         catch (std::runtime_error const& error)
