@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 
+#include "globals.h"
 #include "expr.h"
 #include "parse.h"
 #include "read.h"
@@ -13,7 +14,7 @@ Parser::Parser(std::vector<Token> tokens)
 
 Expr* Parser::parse()
 {
-    Expr* expr = new Expr();
+    Expr* expr = vm.newExpr(ExprType::Number); //  new Expr();
     auto token = peek();
     //std::cout << "parse() " << token.content << std::endl;
     if (token.type == TokenType::BOOLEAN)
@@ -53,8 +54,8 @@ Expr* Parser::parse()
         Expr* result = this->parse();
         expr->type = ExprType::List;
         expr->as.list.exprs = new std::vector<Expr*>();
-        auto quote = new Expr();
-        quote->type = ExprType::Symbol;
+        auto quote = vm.newExpr(ExprType::Symbol); //  new Expr();
+        //quote->type = ExprType::Symbol;
         quote->as.symbol.name = new std::string("quote");
 
         expr->as.list.exprs->push_back(quote);
