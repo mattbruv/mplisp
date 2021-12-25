@@ -18,6 +18,7 @@ enum STDFunc
     QUOTE,
     IF,
     CAR,
+    CDR,
 };
 
 auto StdMap = std::map<std::string, STDFunc>{
@@ -31,6 +32,7 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "quote", STDFunc::QUOTE }, //
     { "if", STDFunc::IF }, //
     { "car", STDFunc::CAR }, //
+    { "cdr", STDFunc::CDR }, //
 };
 
 Expr* eval(Expr* expr, Environment* env)
@@ -162,6 +164,10 @@ Expr* evalList(Expr* expr, Environment* env)
                 case STDFunc::CAR:
                 {
                     return funcCar(expr, env);
+                }
+                case STDFunc::CDR:
+                {
+                    return funcCdr(expr, env);
                 }
                 case STDFunc::QUOTE:
                 {
@@ -528,4 +534,35 @@ Expr* funcCar(Expr* expr, Environment* env)
     auto arg1 = arg->as.list.exprs->begin();
 
     return (*arg1);
+}
+
+Expr* funcCdr(Expr* expr, Environment* env)
+{
+    if (expr->as.list.exprs->size() != 2)
+        throw std::runtime_error("Expected 2 arguments for cdr");
+
+    auto iter = expr->as.list.exprs->begin();
+    iter++;
+    auto arg = eval((*iter), env);
+
+    if (arg->type != ExprType::List)
+        throw std::runtime_error("Cannot get cdr of an item that is not a list");
+
+    if (arg->as.list.exprs->size() == 0)
+        throw std::runtime_error("Cannot get cdr of empty list");
+
+    Expr* result = new Expr();
+    result->type = ExprType::List;
+    result->as.list.exprs = new std::vector<Expr*>();
+
+    auto list = *arg->as.list.exprs;
+    auto it = list.begin();
+    it++;
+
+    for (; it != list.end(); it++)
+    {
+        result->as.list.exprs->push_back((*it));
+    }
+
+    return result;
 }
