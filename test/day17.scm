@@ -71,10 +71,10 @@
 
 (define part2 (lambda (x) (length (PeakAtX x) 0)))
 
-(define foo (PeakAtX 7))
-foo
+;(define foo (PeakAtX 7))
+;foo
 ;(length foo 0)
-;(sum (map part2 searchXs) 0)
+(sum (map part2 searchXs) 0)
 
 ;(shoot 7 9)
 ; loop through all possible ranges of X values

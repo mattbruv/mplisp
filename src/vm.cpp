@@ -53,15 +53,10 @@ Expr* VM::newExpr(ExprType type)
 
 void VM::GC()
 {
-    std::cout << "GC called! threshold: " << this->gcThreshold << std::endl;
-
     markAll();
-    std::cout << "mark all done" << std::endl;
     sweep();
-    std::cout << "sweep all done" << std::endl;
 
     this->gcThreshold = this->objectCount * 2;
-    std::cout << "GC finished! threshold: " << this->gcThreshold << std::endl;
 }
 
 void VM::sweep()
@@ -69,20 +64,18 @@ void VM::sweep()
     this->freedPointers.clear();
     Expr** expr = &this->firstExpr;
 
-    int i = 0;
+    //int i = 0;
     while (*expr)
     {
-        std::cout << "sweep: " << i++;
-        std::cout << " this : " << *expr;
-        //std::cout << " this : " << &*expr;
-        //shtd::cout << " this : " << &expr;
-        std::cout << " next : " << (*expr)->next << " ";
-        printExpr(*expr, false);
-        std::cout << std::endl;
+        //std::cout << "sweep: " << i++;
+        //std::cout << " this : " << *expr;
+        //std::cout << " next : " << (*expr)->next << " ";
+        //printExpr(*expr, false);
+        //std::cout << std::endl;
         //printExpr(*expr, true);
         if (!(*expr)->marked)
         {
-            std::cout << "not marked!" << std::endl;
+            //std::cout << "not marked!" << std::endl;
             // this expr wasn't reached, remove it from list and free it
             Expr* unreached = *expr;
             *expr = unreached->next;
@@ -92,17 +85,17 @@ void VM::sweep()
                 this->free(unreached);
                 freedPointers.insert(*expr);
             }
-            std::cout << "done with free" << std::endl;
+            //std::cout << "done with free" << std::endl;
         }
         else
         {
-            std::cout << "marked!" << std::endl;
+            //std::cout << "marked!" << std::endl;
             // Expr was reached, so unmark it for next GC
             // and move to the next
             (*expr)->marked = false;
             expr = &(*expr)->next;
         }
-        std::cout << "Got to end!" << std::endl;
+        //std::cout << "Got to end!" << std::endl;
     }
 }
 
