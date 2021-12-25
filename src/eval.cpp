@@ -19,6 +19,7 @@ enum STDFunc
     IF,
     CAR,
     CDR,
+    CONS,
 };
 
 auto StdMap = std::map<std::string, STDFunc>{
@@ -33,6 +34,7 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "if", STDFunc::IF }, //
     { "car", STDFunc::CAR }, //
     { "cdr", STDFunc::CDR }, //
+    { "cons", STDFunc::CONS }, //
 };
 
 Expr* eval(Expr* expr, Environment* env)
@@ -168,6 +170,10 @@ Expr* evalList(Expr* expr, Environment* env)
                 case STDFunc::CDR:
                 {
                     return funcCdr(expr, env);
+                }
+                case STDFunc::CONS:
+                {
+                    return funcCons(expr, env);
                 }
                 case STDFunc::QUOTE:
                 {
@@ -519,7 +525,7 @@ Expr* funcGreaterThan(Expr* expr, Environment* env)
 Expr* funcCar(Expr* expr, Environment* env)
 {
     if (expr->as.list.exprs->size() != 2)
-        throw std::runtime_error("Expected 2 arguments for car");
+        throw std::runtime_error("Expected 1 argument for car");
 
     auto iter = expr->as.list.exprs->begin();
     iter++;
@@ -539,7 +545,7 @@ Expr* funcCar(Expr* expr, Environment* env)
 Expr* funcCdr(Expr* expr, Environment* env)
 {
     if (expr->as.list.exprs->size() != 2)
-        throw std::runtime_error("Expected 2 arguments for cdr");
+        throw std::runtime_error("Expected 1 argument for cdr");
 
     auto iter = expr->as.list.exprs->begin();
     iter++;
@@ -563,6 +569,39 @@ Expr* funcCdr(Expr* expr, Environment* env)
     {
         result->as.list.exprs->push_back((*it));
     }
+
+    return result;
+}
+
+Expr* funcCons(Expr* expr, Environment* env)
+{
+    if (expr->as.list.exprs->size() != 3)
+        throw std::runtime_error("Expected 2 arguments for cons");
+
+    auto iter = expr->as.list.exprs->begin();
+    iter++;
+
+    Expr* result = new Expr();
+    result->type = ExprType::List;
+    result->as.list.exprs = new std::vector<Expr*>();
+
+    auto exprToAdd = eval((*iter++), env);
+    auto exprBase = eval((*iter), env);
+
+    // if list, add all items in list to new list
+    if (exprBase->type == ExprType::List)
+    {
+        for (auto item : *exprBase->as.list.exprs)
+        {
+            result->as.list.exprs->push_back(item);
+        }
+    }
+    else
+    {
+        result->as.list.exprs->push_back(exprBase);
+    }
+    // now add the first argument
+    result->as.list.exprs->insert(result->as.list.exprs->begin(), exprToAdd);
 
     return result;
 }

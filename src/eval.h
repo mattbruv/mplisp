@@ -16,3 +16,4 @@ bool isExprTrue(Expr* expr);
 Expr* evalIf(Expr* expr, Environment* env);
 Expr* funcCar(Expr* expr, Environment* env);
 Expr* funcCdr(Expr* expr, Environment* env);
+Expr* funcCons(Expr* expr, Environment* env);
