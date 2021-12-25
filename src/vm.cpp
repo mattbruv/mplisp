@@ -6,6 +6,7 @@
 VM::VM()
 {
     this->stack = std::vector<Expr*>();
+    this->firstExpr = nullptr;
 }
 
 void VM::push(Expr* expr)
@@ -25,6 +26,72 @@ Expr* VM::pop()
 size_t VM::size()
 {
     return this->stack.size();
+}
+
+Expr* VM::newExpr(ExprType type)
+{
+    Expr* expr = new Expr();
+    expr->type = type;
+    expr->marked = false;
+
+    // Insert it into the list of allocated objects
+    expr->next = this->firstExpr;
+    this->firstExpr = expr;
+
+    return expr;
+}
+
+void VM::sweep()
+{
+    auto expr = &this->firstExpr;
+
+    while (*expr)
+    {
+        if (!(*expr)->marked)
+        {
+            // this expr wasn't reached, remove it from list and free it
+            Expr* unreached = *expr;
+            *expr = unreached->next;
+            this->free(unreached);
+        }
+        else
+        {
+            // Expr was reached, so unmark it for next GC
+            // and move to the next
+            (*expr)->marked = false;
+            expr = &(*expr)->next;
+        }
+    }
+}
+
+void VM::free(Expr* expr)
+{
+    switch (expr->type)
+    {
+    case ExprType::List:
+    {
+        auto contents = *expr->as.list.exprs;
+
+        for (auto x : contents)
+        {
+            this->free(x);
+        }
+
+        delete expr;
+        break;
+    }
+    case ExprType::Number:
+    case ExprType::Boolean:
+    case ExprType::Symbol:
+    {
+        delete expr;
+        break;
+    }
+    default:
+    {
+        throw std::runtime_error("No GC routine for expr of type " + expr->type);
+    }
+    }
 }
 
 void VM::markAll()

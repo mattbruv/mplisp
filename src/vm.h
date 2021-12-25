@@ -13,11 +13,15 @@ public:
     void push(Expr* expr);
     Expr* pop();
     size_t size();
+    Expr* newExpr(ExprType type);
     void markAll();
 
 private:
     std::vector<Expr*> stack;
+    Expr* firstExpr;
     void mark(Expr* expr);
+    void free(Expr* expr);
+    void sweep();
 };
 
 void foo();

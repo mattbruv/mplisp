@@ -63,6 +63,7 @@ typedef struct Expr
 {
     ExprType type;
     bool marked = false;
+    struct Expr* next = nullptr;
 
     union as
     {
