@@ -1,7 +1,13 @@
-(define xMin 20)
-(define xMax 30)
-(define yMin -10)
-(define yMax -5)
+;(define xMin 20)
+;(define xMax 30)
+;(define yMin -10)
+;(define yMax -5)
+; target area: x=288..330, y=-96..-50
+(define xMin 288)
+(define xMax 330)
+(define yMin -96)
+(define yMax -50)
+
 
 (define inBounds (lambda (x y)
     (and (inX x) (inY y))))
@@ -52,7 +58,8 @@
 (define maxAtX (lambda (x)
     (max (filter peaks (map (lambda (y) (shoot x y)) searchY)) 0)))
 
-(map maxAtX searchX)
+; searchX
+(max (map maxAtX searchX) 0)
 ;msearchX
 
 
