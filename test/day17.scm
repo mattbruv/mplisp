@@ -37,7 +37,7 @@
     (+ x (xVelDist (- x 1))))))
 
 (xVelDist 6)
-(shoot 6 9)
+(shoot 7 9)
 ; loop through all possible ranges of X values
 ; loop up from zero to all hits of y
 

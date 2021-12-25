@@ -20,6 +20,7 @@ enum STDFunc
     CAR,
     CDR,
     CONS,
+    EMPTYCHECK,
 };
 
 auto StdMap = std::map<std::string, STDFunc>{
@@ -35,6 +36,7 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "car", STDFunc::CAR }, //
     { "cdr", STDFunc::CDR }, //
     { "cons", STDFunc::CONS }, //
+    { "empty?", STDFunc::EMPTYCHECK }, //
 };
 
 Expr* eval(Expr* expr, Environment* env)
@@ -181,6 +183,10 @@ Expr* evalList(Expr* expr, Environment* env)
                     iter++;
                     return (*iter);
                     break;
+                }
+                case STDFunc::EMPTYCHECK:
+                {
+                    return funcEmpty(expr, env);
                 }
                 default:
                 {
@@ -602,6 +608,27 @@ Expr* funcCons(Expr* expr, Environment* env)
     }
     // now add the first argument
     result->as.list.exprs->insert(result->as.list.exprs->begin(), exprToAdd);
+
+    return result;
+}
+
+Expr* funcEmpty(Expr* expr, Environment* env)
+{
+    auto list = expr->as.list.exprs;
+
+    if (list->size() != 2)
+        throw std::runtime_error("Expected 2 arguments for empty?");
+
+    auto iter = list->begin();
+    iter++;
+    auto val = eval((*iter), env);
+
+    if (val->type != ExprType::List)
+        throw std::runtime_error("empty? argument is not a list!");
+
+    Expr* result = new Expr();
+    result->type = ExprType::Boolean;
+    result->as.boolean.value = val->as.list.exprs->size() == 0;
 
     return result;
 }

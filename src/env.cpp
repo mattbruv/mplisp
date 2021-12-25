@@ -22,6 +22,7 @@ Environment::Environment(Environment* parent)
     this->reservedSymbols.insert("car");
     this->reservedSymbols.insert("cdr");
     this->reservedSymbols.insert("cons");
+    this->reservedSymbols.insert("empty?");
 }
 
 bool Environment::isReservedWord(std::string key)
