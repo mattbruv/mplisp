@@ -7,7 +7,8 @@ VM::VM()
 {
     this->stack = std::vector<Expr*>();
     this->firstExpr = nullptr;
-    this->gcThreshold = 100000;
+    this->objectCount = 0;
+    this->gcThreshold = 50000;
 }
 
 void VM::push(Expr* expr)
@@ -31,7 +32,7 @@ size_t VM::size()
 
 Expr* VM::newExpr(ExprType type)
 {
-    if ((int)this->size() == this->gcThreshold)
+    if (this->objectCount == this->gcThreshold)
     {
         this->GC();
     }
@@ -44,6 +45,8 @@ Expr* VM::newExpr(ExprType type)
     expr->next = this->firstExpr;
     this->firstExpr = expr;
 
+    this->objectCount++;
+
     return expr;
 }
 
@@ -54,7 +57,7 @@ void VM::GC()
     markAll();
     sweep();
 
-    this->gcThreshold = (int)this->size() * 2;
+    this->gcThreshold = this->objectCount * 2;
 }
 
 void VM::sweep()
@@ -108,6 +111,8 @@ void VM::free(Expr* expr)
         throw std::runtime_error("No GC routine for expr of type " + expr->type);
     }
     }
+
+    this->objectCount--;
 }
 
 void VM::markAll()

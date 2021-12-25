@@ -24,5 +24,6 @@ private:
     void free(Expr* expr);
     void sweep();
 
+    int objectCount;
     int gcThreshold;
 };
