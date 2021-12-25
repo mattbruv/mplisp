@@ -6,3 +6,9 @@
             (filter-proxy fn (cdr xs) acc)))))
 
 (define filter (lambda (fn xs) (filter-proxy fn xs '())))
+
+(define map-proxy (lambda (fn xs acc)
+    (if (empty? xs) acc
+        (map-proxy fn (cdr xs) (cons (fn (car xs)) acc)))))
+
+(define map (lambda (fn xs) (map-proxy fn xs '())))
