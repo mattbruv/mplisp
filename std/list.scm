@@ -18,3 +18,7 @@
         (if (> (car xs) current)
             (max (cdr xs) (car xs))
             (max (cdr xs) current)))))
+
+(define sum (lambda (xs current)
+    (if (empty? xs) current
+        (sum (cdr xs) (+ current (car xs))))))
