@@ -17,6 +17,7 @@ enum STDFunc
     GREATERTHAN,
     QUOTE,
     IF,
+    CAR,
 };
 
 auto StdMap = std::map<std::string, STDFunc>{
@@ -29,6 +30,7 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "define", STDFunc::DEFINE }, //
     { "quote", STDFunc::QUOTE }, //
     { "if", STDFunc::IF }, //
+    { "car", STDFunc::CAR }, //
 };
 
 Expr* eval(Expr* expr, Environment* env)
@@ -156,6 +158,10 @@ Expr* evalList(Expr* expr, Environment* env)
                 case STDFunc::DEFINE:
                 {
                     return funcDefine(expr, env);
+                }
+                case STDFunc::CAR:
+                {
+                    return funcCar(expr, env);
                 }
                 case STDFunc::QUOTE:
                 {
@@ -502,4 +508,24 @@ Expr* funcGreaterThan(Expr* expr, Environment* env)
     //printExpr(arg1, false);
     //printExpr(arg2, false);
     return result;
+}
+
+Expr* funcCar(Expr* expr, Environment* env)
+{
+    if (expr->as.list.exprs->size() != 2)
+        throw std::runtime_error("Expected 2 arguments for car");
+
+    auto iter = expr->as.list.exprs->begin();
+    iter++;
+    auto arg = eval((*iter), env);
+
+    if (arg->type != ExprType::List)
+        throw std::runtime_error("Cannot get car from item that is not a list");
+
+    if (arg->as.list.exprs->size() == 0)
+        throw std::runtime_error("Cannot get car of empty list");
+
+    auto arg1 = arg->as.list.exprs->begin();
+
+    return (*arg1);
 }

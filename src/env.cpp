@@ -19,6 +19,7 @@ Environment::Environment(Environment* parent)
     this->reservedSymbols.insert("quote");
     this->reservedSymbols.insert("if");
     this->reservedSymbols.insert(">");
+    this->reservedSymbols.insert("car");
 }
 
 bool Environment::isReservedWord(std::string key)
