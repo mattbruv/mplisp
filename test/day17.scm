@@ -18,9 +18,10 @@
 
 (define step (lambda (x y xVel yVel peak steps)
     ; if we have hit our magic area, return highest peak
-    (if (inBounds x y) (cons peak (cons x (cons y (cons steps '()))))
+;    (if (inBounds x y) (cons peak (cons x (cons y (cons steps '()))))
+    (if (inBounds x y) peak
         ; if we are past the bounds, return FAIL
-        (if (pastBounds x y) false
+        (if (pastBounds x y) -1
             ; otherwise, do the next step
             (step
                 (+ x xVel)
@@ -33,11 +34,30 @@
 
 (define shoot (lambda (xVel yVel) (step 0 0 xVel yVel 0 0)))
 
-(define xVelDist (lambda (x) (if (= x 1) 1
+(define xVelDist (lambda (x) (if (<= x 1) x
     (+ x (xVelDist (- x 1))))))
 
-(xVelDist 6)
-(shoot 7 9)
+(define range (lambda (from to acc) (if (= from (+ 1 to)) acc
+    (range (+ from 1) to (cons (- to from) acc)))))
+
+; (xVelDist 8)
+(define testRange (range 0 100 '()))
+
+; search xs are xs whos xVelDist are inX
+(define searchY (range 0 100 '()))
+(define peaks (lambda (x) (> x 0)))
+
+(define searchX (filter (lambda (x) (inX (xVelDist x))) testRange))
+
+(define maxAtX (lambda (x)
+    (max (filter peaks (map (lambda (y) (shoot x y)) searchY)) 0)))
+
+(map maxAtX searchX)
+;msearchX
+
+
+
+;(shoot 7 9)
 ; loop through all possible ranges of X values
 ; loop up from zero to all hits of y
 
@@ -47,7 +67,5 @@
 ; (shoot 3 2000)
 
 
-;(define range (lambda (from to acc) (if (= from (+ 1 to)) acc
-;    (range (+ from 1) to (cons (- to from) acc)))))
 
 ;(range 0 500 '())

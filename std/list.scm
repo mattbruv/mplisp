@@ -12,3 +12,9 @@
         (map-proxy fn (cdr xs) (cons (fn (car xs)) acc)))))
 
 (define map (lambda (fn xs) (map-proxy fn xs '())))
+
+(define max (lambda (xs current) 
+    (if (empty? xs) current 
+        (if (> (car xs) current)
+            (max (cdr xs) (car xs))
+            (max (cdr xs) current)))))
