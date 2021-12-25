@@ -55,36 +55,53 @@ void VM::GC()
     std::cout << "GC called! threshold: " << this->gcThreshold << std::endl;
 
     markAll();
+    std::cout << "mark all done" << std::endl;
     sweep();
+    std::cout << "sweep all done" << std::endl;
 
     this->gcThreshold = this->objectCount * 2;
+    std::cout << "GC finished! threshold: " << this->gcThreshold << std::endl;
 }
 
 void VM::sweep()
 {
-    auto expr = &this->firstExpr;
+    Expr** expr = &this->firstExpr;
 
+    int i = 0;
     while (*expr)
     {
+        std::cout << "sweep: " << i++;
+        std::cout << " this : " << *expr;
+        //std::cout << " this : " << &*expr;
+        //shtd::cout << " this : " << &expr;
+        std::cout << " next : " << (*expr)->next << " ";
+        printExpr(*expr, false);
+        std::cout << std::endl;
+        //printExpr(*expr, true);
         if (!(*expr)->marked)
         {
+            std::cout << "not marked!" << std::endl;
             // this expr wasn't reached, remove it from list and free it
             Expr* unreached = *expr;
             *expr = unreached->next;
             this->free(unreached);
+            std::cout << "done with free" << std::endl;
         }
         else
         {
+            std::cout << "marked!" << std::endl;
             // Expr was reached, so unmark it for next GC
             // and move to the next
             (*expr)->marked = false;
             expr = &(*expr)->next;
         }
+        std::cout << "Got to end!" << std::endl;
     }
 }
 
 void VM::free(Expr* expr)
 {
+    std::cout << "free address" << expr << std::endl;
     switch (expr->type)
     {
     case ExprType::List:
@@ -120,6 +137,7 @@ void VM::markAll()
     for (auto expr : this->stack)
     {
         this->mark(expr);
+        //printExpr(expr, true);
     }
 }
 
@@ -142,6 +160,7 @@ void VM::mark(Expr* expr)
         for (auto x : contents)
         {
             this->mark(x);
+            //printExpr(x, true);
         }
 
         break;
