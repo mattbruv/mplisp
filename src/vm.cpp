@@ -120,8 +120,13 @@ void VM::free(Expr* expr)
     }
     case ExprType::Number:
     case ExprType::Boolean:
+    {
+        delete expr;
+        break;
+    }
     case ExprType::Symbol:
     {
+        delete expr->as.symbol.name;
         delete expr;
         break;
     }
