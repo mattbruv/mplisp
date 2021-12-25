@@ -201,8 +201,8 @@ Expr* evalList(Expr* expr, Environment* env)
             else
             {
                 auto func = env->getVariable(first);
-                auto anon = new Expr();
-                anon->type = ExprType::List;
+                auto anon = vm.newExpr(ExprType::List); //new Expr();
+                //anon->type = ExprType::List;
                 anon->as.list.exprs = new std::vector<Expr*>();
                 anon->as.list.exprs->push_back(func);
                 auto iter = list->begin();
@@ -235,7 +235,7 @@ double numberToDouble(Expr* expr)
 
 Expr* funcAdd(Expr* expr, Environment* env)
 {
-    Expr* result = new Expr();
+    Expr* result = vm.newExpr(ExprType::Number); //  new Expr();
 
     auto list = *expr->as.list.exprs;
 
@@ -252,7 +252,7 @@ Expr* funcAdd(Expr* expr, Environment* env)
         sum += numberToDouble(value);
     }
 
-    result->type = ExprType::Number;
+    //result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
     return result;
@@ -260,7 +260,7 @@ Expr* funcAdd(Expr* expr, Environment* env)
 
 Expr* funcSub(Expr* expr, Environment* env)
 {
-    Expr* result = new Expr();
+    Expr* result = vm.newExpr(ExprType::Number); // new Expr();
 
     auto list = *expr->as.list.exprs;
 
@@ -285,7 +285,7 @@ Expr* funcSub(Expr* expr, Environment* env)
         sum -= numberToDouble(value);
     }
 
-    result->type = ExprType::Number;
+    //result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
     return result;
@@ -293,7 +293,7 @@ Expr* funcSub(Expr* expr, Environment* env)
 
 Expr* funcMul(Expr* expr, Environment* env)
 {
-    Expr* result = new Expr();
+    Expr* result = vm.newExpr(ExprType::Number); // new Expr();
 
     auto list = *expr->as.list.exprs;
 
@@ -310,7 +310,7 @@ Expr* funcMul(Expr* expr, Environment* env)
         sum *= numberToDouble(value);
     }
 
-    result->type = ExprType::Number;
+    // result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
     return result;
@@ -318,7 +318,7 @@ Expr* funcMul(Expr* expr, Environment* env)
 
 Expr* funcDiv(Expr* expr, Environment* env)
 {
-    Expr* result = new Expr();
+    Expr* result = vm.newExpr(ExprType::Number); // new Expr();
 
     auto list = *expr->as.list.exprs;
 
@@ -347,7 +347,7 @@ Expr* funcDiv(Expr* expr, Environment* env)
         sum /= div;
     }
 
-    result->type = ExprType::Number;
+    // result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
     return result;
@@ -520,8 +520,8 @@ Expr* funcGreaterThan(Expr* expr, Environment* env)
     if (arg2->type != ExprType::Number)
         throw std::runtime_error("> first argument not number!");
 
-    Expr* result = new Expr();
-    result->type = ExprType::Boolean;
+    Expr* result = vm.newExpr(ExprType::Boolean); // new Expr();
+    // result->type = ExprType::Boolean;
     result->as.boolean.value = numberToDouble(arg1) > numberToDouble(arg2);
     //printExpr(arg1, false);
     //printExpr(arg2, false);
@@ -563,8 +563,8 @@ Expr* funcCdr(Expr* expr, Environment* env)
     if (arg->as.list.exprs->size() == 0)
         throw std::runtime_error("Cannot get cdr of empty list");
 
-    Expr* result = new Expr();
-    result->type = ExprType::List;
+    Expr* result = vm.newExpr(ExprType::List); // new Expr();
+    // result->type = ExprType::List;
     result->as.list.exprs = new std::vector<Expr*>();
 
     auto list = *arg->as.list.exprs;
@@ -587,8 +587,8 @@ Expr* funcCons(Expr* expr, Environment* env)
     auto iter = expr->as.list.exprs->begin();
     iter++;
 
-    Expr* result = new Expr();
-    result->type = ExprType::List;
+    Expr* result = vm.newExpr(ExprType::List); // new Expr();
+    // result->type = ExprType::List;
     result->as.list.exprs = new std::vector<Expr*>();
 
     auto exprToAdd = eval((*iter++), env);
@@ -626,8 +626,8 @@ Expr* funcEmpty(Expr* expr, Environment* env)
     if (val->type != ExprType::List)
         throw std::runtime_error("empty? argument is not a list!");
 
-    Expr* result = new Expr();
-    result->type = ExprType::Boolean;
+    Expr* result = vm.newExpr(ExprType::Boolean); // new Expr();
+    // result->type = ExprType::Boolean;
     result->as.boolean.value = val->as.list.exprs->size() == 0;
 
     return result;
