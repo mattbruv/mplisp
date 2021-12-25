@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <set>
 
 #include "expr.h"
 
@@ -24,6 +25,7 @@ private:
     void free(Expr* expr);
     void sweep();
 
+    std::set<Expr*> freedPointers;
     int objectCount;
     int gcThreshold;
 };

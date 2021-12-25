@@ -9,6 +9,7 @@ VM::VM()
     this->firstExpr = nullptr;
     this->objectCount = 0;
     this->gcThreshold = 50000;
+    std::set<Expr*> freedPointers;
 }
 
 void VM::push(Expr* expr)
@@ -65,6 +66,7 @@ void VM::GC()
 
 void VM::sweep()
 {
+    this->freedPointers.clear();
     Expr** expr = &this->firstExpr;
 
     int i = 0;
@@ -84,7 +86,12 @@ void VM::sweep()
             // this expr wasn't reached, remove it from list and free it
             Expr* unreached = *expr;
             *expr = unreached->next;
-            this->free(unreached);
+
+            if (this->freedPointers.find(*expr) != this->freedPointers.end())
+            {
+                this->free(unreached);
+                freedPointers.insert(*expr);
+            }
             std::cout << "done with free" << std::endl;
         }
         else
