@@ -213,28 +213,42 @@ void evalList(Expr* expr, Environment* env)
             // it's a custom function call.
             else
             {
+                // TODO: possibly improve this by mutating
+                // and replacing the first symbol with the lambda
+
+                // get the function
                 auto func = env->getVariable(first);
-                auto anon = vm.newExpr(ExprType::List); //new Expr();
-                //anon->type = ExprType::List;
+                auto anon = vm.newExpr(ExprType::List);
+                vm.push(anon);
+
                 anon->as.list.exprs = new std::vector<Expr*>();
                 anon->as.list.exprs->push_back(func);
+
                 auto iter = list->begin();
                 iter++;
+
                 while (iter != list->end())
                 {
                     anon->as.list.exprs->push_back((*iter++));
                 }
-                return evalLambda(anon, env);
+
+                evalLambda(anon, env);
+                auto evalResult = vm.pop(); // pop eval result
+                vm.pop(); // pop anon
+                vm.push(evalResult); // re-add result
+                return;
             }
         }
 
-        Expr* evaled = eval(value, env);
+        eval(value, env);
+        auto evaled = vm.pop();
         // TODO: this would cause bugs, figure out how to manage memory
         //delete (*iter); // free memory at the old expression pointer
         (*iter) = evaled;
-    };
+    }
 
-    return expr;
+    vm.push(expr);
+    return;
 }
 
 double numberToDouble(Expr* expr)
