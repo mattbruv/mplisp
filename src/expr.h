@@ -16,7 +16,7 @@ enum ExprType
 
 struct ExprSymbol
 {
-    std::string* name;
+    std::shared_ptr<std::string> name;
 };
 
 struct ExprNumber
@@ -52,7 +52,7 @@ struct ExprDefinition
 
 struct ExprList
 {
-    std::vector<std::shared_ptr<Expr> >* exprs;
+    std::shared_ptr<std::vector<std::shared_ptr<Expr> > > exprs;
 };
 
 struct ExprBool

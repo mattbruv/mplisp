@@ -269,7 +269,7 @@ void evalList(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
                 auto anon = vm.newExpr(ExprType::List);
                 vm.push(anon);
 
-                anon->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
+                expr->as.list.exprs = std::make_shared<std::vector<std::shared_ptr<Expr> > >();
                 anon->as.list.exprs->push_back(func);
 
                 auto iter = list->begin();
@@ -676,7 +676,7 @@ void funcCdr(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
         throw std::runtime_error("Cannot get cdr of empty list");
 
     std::shared_ptr<Expr> result = vm.newExpr(ExprType::List);
-    result->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
+    result->as.list.exprs = std::make_shared<std::vector<std::shared_ptr<Expr> > >();
 
     auto list = *arg->as.list.exprs;
     auto it = list.begin();
@@ -703,7 +703,7 @@ void funcCons(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 
     std::shared_ptr<Expr> result = vm.newExpr(ExprType::List); // new Expr();
     // result->type = ExprType::List;
-    result->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
+    result->as.list.exprs = std::make_shared<std::vector<std::shared_ptr<Expr> > >();
 
     eval((*iter++), env);
     auto exprToAdd = vm.pop();

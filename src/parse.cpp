@@ -1,3 +1,4 @@
+#include <memory>
 #include <iostream>
 #include <string>
 
@@ -47,7 +48,8 @@ void Parser::parse()
             return;
         }
         expr->type = ExprType::Symbol;
-        expr->as.symbol.name = new std::string(token.content);
+        //expr->as.symbol.name = new std::string(token.content);
+        expr->as.symbol.name = std::make_shared<std::string>(token.content);
         //std::cout << "return symbol" << std::endl;
         return;
     }
@@ -60,10 +62,10 @@ void Parser::parse()
         std::shared_ptr<Expr> result = vm.pop();
 
         expr->type = ExprType::List;
-        expr->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
+        expr->as.list.exprs = std::make_shared<std::vector<std::shared_ptr<Expr> > >();
 
         auto quote = vm.newExpr(ExprType::Symbol);
-        quote->as.symbol.name = new std::string("quote");
+        quote->as.symbol.name = std::make_shared<std::string>("quote");
 
         expr->as.list.exprs->push_back(quote);
         expr->as.list.exprs->push_back(result);
@@ -74,7 +76,7 @@ void Parser::parse()
     consume(TokenType::PAREN_LEFT, "Expected (, found " + token.content);
     expr->type = ExprType::List;
     // Don't forget to initialize your variables or bad things happen
-    expr->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
+    expr->as.list.exprs = std::make_shared<std::vector<std::shared_ptr<Expr> > >();
 
     while (check(TokenType::PAREN_RIGHT) == false)
     {
