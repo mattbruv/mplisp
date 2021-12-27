@@ -39,8 +39,18 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "empty?", STDFunc::EMPTYCHECK }, //
 };
 
+void check(size_t start, size_t end)
+{
+    if (end != start + 1)
+    {
+        throw std::runtime_error("ERROR WITH STACK SIZE");
+    }
+}
+
 void eval(Expr* expr, Environment* env)
 {
+    auto startSize = vm.size();
+
     if (verbose())
     {
         std::cout << "evaluating: ";
@@ -67,6 +77,8 @@ void eval(Expr* expr, Environment* env)
     case ExprType::List:
     {
         evalList(expr, env);
+        auto endSize = vm.size();
+        check(startSize, endSize);
         return;
     }
     default:

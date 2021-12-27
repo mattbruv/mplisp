@@ -14,16 +14,16 @@ VM::VM()
 
 void VM::push(Expr* expr)
 {
-    printExpr(expr, true);
+    // printExpr(expr, true);
     this->stack.push_back(expr);
-    std::cout << "stack push: " << stack.size() << std::endl;
+    //std::cout << "stack push: " << stack.size() << std::endl;
 }
 
 Expr* VM::pop()
 {
     Expr* e = this->stack.back();
     this->stack.pop_back();
-    std::cout << "stack pop: " << stack.size() << std::endl;
+    // std::cout << "stack pop: " << stack.size() << std::endl;
     // popped expression needs to be 'delete'd afterwards,
     // or else there will be a memory leak
     return e;

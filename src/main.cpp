@@ -78,9 +78,9 @@ int main(int argc, char* argv[])
         {
             // Global default environment
             Environment* globalEnv = new Environment(nullptr);
-            //applyFile("std/comparison.scm", globalEnv);
-            //applyFile("std/logical.scm", globalEnv);
-            //applyFile("std/list.scm", globalEnv);
+            applyFile("std/comparison.scm", globalEnv);
+            applyFile("std/logical.scm", globalEnv);
+            applyFile("std/list.scm", globalEnv);
 
             std::vector<Token> tokens = tokenize(source);
             auto parser = new Parser(tokens);

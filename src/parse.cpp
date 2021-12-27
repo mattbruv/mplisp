@@ -15,8 +15,8 @@ Parser::Parser(std::vector<Token> tokens)
 void Parser::parse()
 {
     Expr* expr = vm.newExpr(ExprType::Number); //  new Expr();
-    std::cout << "\n" << std::endl;
-    std::cout << "parse called" << std::endl;
+    //std::cout << "\n" << std::endl;
+    //std::cout << "parse called" << std::endl;
     vm.push(expr);
 
     auto token = peek();
@@ -34,7 +34,6 @@ void Parser::parse()
         {
             expr->as.boolean.value = false;
         }
-        printExpr(expr, true);
         return;
     }
 
@@ -45,13 +44,11 @@ void Parser::parse()
         if (parseNumber(token, expr))
         {
             //std::cout << "return number" << std::endl;
-            printExpr(expr, true);
             return;
         }
         expr->type = ExprType::Symbol;
         expr->as.symbol.name = new std::string(token.content);
         //std::cout << "return symbol" << std::endl;
-        printExpr(expr, true);
         return;
     }
 
@@ -81,15 +78,15 @@ void Parser::parse()
 
     while (check(TokenType::PAREN_RIGHT) == false)
     {
-        std::cout << "parsing next part in list..." << std::endl;
+        //std::cout << "parsing next part in list..." << std::endl;
         this->parse();
         auto temp = vm.pop();
         expr->as.list.exprs->push_back(temp);
-        std::cout << "pushed to back" << std::endl;
+        //std::cout << "pushed to back" << std::endl;
     }
 
     consume(TokenType::PAREN_RIGHT, "Expected ), found " + token.content);
-    std::cout << "done with list" << std::endl;
+    // std::cout << "done with list" << std::endl;
 
     return;
 }
