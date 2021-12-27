@@ -260,9 +260,10 @@ double numberToDouble(Expr* expr)
     return expr->as.number.as.doubleValue;
 }
 
-Expr* funcAdd(Expr* expr, Environment* env)
+void funcAdd(Expr* expr, Environment* env)
 {
-    Expr* result = vm.newExpr(ExprType::Number); //  new Expr();
+    Expr* result = vm.newExpr(ExprType::Number);
+    vm.push(result);
 
     auto list = *expr->as.list.exprs;
 
@@ -271,7 +272,8 @@ Expr* funcAdd(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        Expr* value = eval((*iter), env);
+        eval((*iter), env);
+        auto value = vm.pop();
 
         if (value->type != ExprType::Number)
             throw std::runtime_error("+: Invalid expression given: " + value->type);
@@ -279,15 +281,14 @@ Expr* funcAdd(Expr* expr, Environment* env)
         sum += numberToDouble(value);
     }
 
-    //result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
-    return result;
 }
 
-Expr* funcSub(Expr* expr, Environment* env)
+void funcSub(Expr* expr, Environment* env)
 {
-    Expr* result = vm.newExpr(ExprType::Number); // new Expr();
+    Expr* result = vm.newExpr(ExprType::Number);
+    vm.push(result);
 
     auto list = *expr->as.list.exprs;
 
@@ -297,7 +298,8 @@ Expr* funcSub(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        Expr* value = eval((*iter), env);
+        eval((*iter), env);
+        auto value = vm.pop();
 
         if (value->type != ExprType::Number)
             throw std::runtime_error("+: Invalid expression given: " + value->type);
@@ -312,10 +314,8 @@ Expr* funcSub(Expr* expr, Environment* env)
         sum -= numberToDouble(value);
     }
 
-    //result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
-    return result;
 }
 
 Expr* funcMul(Expr* expr, Environment* env)
