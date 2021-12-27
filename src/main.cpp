@@ -35,8 +35,7 @@ void applyFile(std::string path, Environment* env)
     {
         parser->parse();
         auto result = vm.pop();
-        //Expr* result = parser->parse();
-        //vm.push(eval(result, env));
+        eval(result, env);
     }
 
     // set all new definitions as reserved
@@ -95,6 +94,7 @@ int main(int argc, char* argv[])
                 eval(result, globalEnv);
                 auto evaled = vm.pop();
                 printExpr(evaled, true);
+                vm.push(evaled);
             }
         }
         catch (std::runtime_error const& error)

@@ -79,12 +79,13 @@ void eval(Expr* expr, Environment* env)
 
 void evalList(Expr* expr, Environment* env)
 {
-    // SHOULD PUT A NEW LIST ON THE STACK
+    vm.push(expr);
+
     auto list = expr->as.list.exprs;
 
     if (list->size() == 0)
     {
-        vm.push(expr);
+        // vm.push(expr);
         return;
     }
 
@@ -97,7 +98,7 @@ void evalList(Expr* expr, Environment* env)
         auto test = std::string("lambda").compare(*value->as.symbol.name) == 0;
         if (test)
         {
-            vm.push(expr);
+            // vm.push(expr);
             return;
         }
 
@@ -115,6 +116,9 @@ void evalList(Expr* expr, Environment* env)
                 if (first->type == ExprType::Symbol && test)
                 {
                     evalLambda(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
             }
@@ -136,69 +140,101 @@ void evalList(Expr* expr, Environment* env)
                 case STDFunc::ADD:
                 {
                     funcAdd(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 case STDFunc::SUB:
                 {
                     funcSub(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 case STDFunc::MUL:
                 {
                     funcMul(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 case STDFunc::DIV:
                 {
                     funcDiv(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 case STDFunc::LAMBDA:
                 {
-                    //std::cout << "lambda eval?" << std::endl;
-                    vm.push(expr);
                     return;
                 }
                 case STDFunc::GREATERTHAN:
                 {
                     funcGreaterThan(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 case STDFunc::IF:
                 {
                     evalIf(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 case STDFunc::DEFINE:
                 {
                     funcDefine(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 case STDFunc::CAR:
                 {
                     funcCar(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 case STDFunc::CDR:
                 {
                     funcCdr(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 case STDFunc::CONS:
                 {
                     funcCons(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 case STDFunc::QUOTE:
                 {
                     auto iter = list->begin();
                     iter++;
+                    vm.pop(); // expr
                     vm.push((*iter));
                     return;
                 }
                 case STDFunc::EMPTYCHECK:
                 {
                     funcEmpty(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
                     return;
                 }
                 default:
@@ -235,6 +271,7 @@ void evalList(Expr* expr, Environment* env)
                 evalLambda(anon, env);
                 auto evalResult = vm.pop(); // pop eval result
                 vm.pop(); // pop anon
+                vm.pop(); // pop expr
                 vm.push(evalResult); // re-add result
                 return;
             }
@@ -242,12 +279,9 @@ void evalList(Expr* expr, Environment* env)
 
         eval(value, env);
         auto evaled = vm.pop();
-        // TODO: this would cause bugs, figure out how to manage memory
-        //delete (*iter); // free memory at the old expression pointer
         (*iter) = evaled;
     }
 
-    vm.push(expr);
     return;
 }
 
@@ -262,8 +296,9 @@ double numberToDouble(Expr* expr)
 
 void funcAdd(Expr* expr, Environment* env)
 {
+    vm.push(expr);
+
     Expr* result = vm.newExpr(ExprType::Number);
-    vm.push(result);
 
     auto list = *expr->as.list.exprs;
 
@@ -283,12 +318,16 @@ void funcAdd(Expr* expr, Environment* env)
 
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
+
+    vm.pop(); // expr
+    vm.push(result);
 }
 
 void funcSub(Expr* expr, Environment* env)
 {
+    vm.push(expr);
+
     Expr* result = vm.newExpr(ExprType::Number);
-    vm.push(result);
 
     auto list = *expr->as.list.exprs;
 
@@ -316,12 +355,15 @@ void funcSub(Expr* expr, Environment* env)
 
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
+
+    vm.pop(); // expr
+    vm.push(result);
 }
 
 void funcMul(Expr* expr, Environment* env)
 {
+    vm.push(expr);
     Expr* result = vm.newExpr(ExprType::Number); // new Expr();
-    vm.push(result);
 
     auto list = *expr->as.list.exprs;
 
@@ -341,12 +383,15 @@ void funcMul(Expr* expr, Environment* env)
 
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
+    vm.pop(); // expr
+    vm.push(result);
 }
 
 void funcDiv(Expr* expr, Environment* env)
 {
+    vm.push(expr);
+
     Expr* result = vm.newExpr(ExprType::Number);
-    vm.push(result);
 
     auto list = *expr->as.list.exprs;
 
@@ -378,6 +423,8 @@ void funcDiv(Expr* expr, Environment* env)
 
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
+    vm.pop(); // expr
+    vm.push(result);
 }
 
 void evalLambda(Expr* expr, Environment* env)
