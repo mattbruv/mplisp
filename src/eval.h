@@ -3,18 +3,18 @@
 #include "env.h"
 #include "expr.h"
 
-Expr* eval(Expr* expression, Environment* env);
-Expr* evalList(Expr* expr, Environment* env);
-Expr* evalLambda(Expr* expr, Environment* env);
-Expr* funcAdd(Expr* expr, Environment* env);
-Expr* funcSub(Expr* expr, Environment* env);
-Expr* funcMul(Expr* expr, Environment* env);
-Expr* funcDiv(Expr* expr, Environment* env);
-Expr* funcGreaterThan(Expr* expr, Environment* env);
-Expr* funcDefine(Expr* expr, Environment* env);
+void eval(Expr* expression, Environment* env);
+void evalList(Expr* expr, Environment* env);
+void evalLambda(Expr* expr, Environment* env);
+void funcAdd(Expr* expr, Environment* env);
+void funcSub(Expr* expr, Environment* env);
+void funcMul(Expr* expr, Environment* env);
+void funcDiv(Expr* expr, Environment* env);
+void funcGreaterThan(Expr* expr, Environment* env);
+void funcDefine(Expr* expr, Environment* env);
 bool isExprTrue(Expr* expr);
-Expr* evalIf(Expr* expr, Environment* env);
-Expr* funcCar(Expr* expr, Environment* env);
-Expr* funcCdr(Expr* expr, Environment* env);
-Expr* funcCons(Expr* expr, Environment* env);
-Expr* funcEmpty(Expr* expr, Environment* env);
+void evalIf(Expr* expr, Environment* env);
+void funcCar(Expr* expr, Environment* env);
+void funcCdr(Expr* expr, Environment* env);
+void funcCons(Expr* expr, Environment* env);
+void funcEmpty(Expr* expr, Environment* env);

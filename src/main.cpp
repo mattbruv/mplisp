@@ -33,8 +33,10 @@ void applyFile(std::string path, Environment* env)
     // parse all expressions in the file
     while (!parser->isAtEnd())
     {
-        Expr* result = parser->parse();
-        vm.push(eval(result, env));
+        parser->parse();
+        auto result = vm.pop();
+        //Expr* result = parser->parse();
+        //vm.push(eval(result, env));
     }
 
     // set all new definitions as reserved
@@ -77,9 +79,9 @@ int main(int argc, char* argv[])
         {
             // Global default environment
             Environment* globalEnv = new Environment(nullptr);
-            applyFile("std/comparison.scm", globalEnv);
-            applyFile("std/logical.scm", globalEnv);
-            applyFile("std/list.scm", globalEnv);
+            //applyFile("std/comparison.scm", globalEnv);
+            //applyFile("std/logical.scm", globalEnv);
+            //applyFile("std/list.scm", globalEnv);
 
             std::vector<Token> tokens = tokenize(source);
             auto parser = new Parser(tokens);
@@ -87,14 +89,11 @@ int main(int argc, char* argv[])
             // parse all expressions in the file
             while (!parser->isAtEnd())
             {
-                Expr* result = parser->parse();
-                if (verbose())
-                    printExpr(result, true);
+                parser->parse();
+                auto result = vm.pop();
+
                 Expr* evaled = eval(result, globalEnv);
-                vm.push(evaled);
                 printExpr(evaled, true);
-                if (verbose())
-                    std::cout << "vm size: " << vm.size() << std::endl;
             }
         }
         catch (std::runtime_error const& error)

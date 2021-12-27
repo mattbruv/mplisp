@@ -39,7 +39,7 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "empty?", STDFunc::EMPTYCHECK }, //
 };
 
-Expr* eval(Expr* expr, Environment* env)
+void eval(Expr* expr, Environment* env)
 {
     if (verbose())
     {

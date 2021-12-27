@@ -12,9 +12,13 @@ Parser::Parser(std::vector<Token> tokens)
     this->tokens = tokens;
 }
 
-Expr* Parser::parse()
+void Parser::parse()
 {
     Expr* expr = vm.newExpr(ExprType::Number); //  new Expr();
+    std::cout << "\n" << std::endl;
+    std::cout << "parse called" << std::endl;
+    vm.push(expr);
+
     auto token = peek();
     //std::cout << "parse() " << token.content << std::endl;
     if (token.type == TokenType::BOOLEAN)
@@ -30,7 +34,8 @@ Expr* Parser::parse()
         {
             expr->as.boolean.value = false;
         }
-        return expr;
+        printExpr(expr, true);
+        return;
     }
 
     if (token.type == TokenType::SYMBOL_NUMBER)
@@ -40,28 +45,33 @@ Expr* Parser::parse()
         if (parseNumber(token, expr))
         {
             //std::cout << "return number" << std::endl;
-            return expr;
+            printExpr(expr, true);
+            return;
         }
         expr->type = ExprType::Symbol;
         expr->as.symbol.name = new std::string(token.content);
         //std::cout << "return symbol" << std::endl;
-        return expr;
+        printExpr(expr, true);
+        return;
     }
 
     if (token.type == TokenType::QUOTE)
     {
         advance();
-        Expr* result = this->parse();
+
+        this->parse();
+        Expr* result = vm.pop();
+
         expr->type = ExprType::List;
         expr->as.list.exprs = new std::vector<Expr*>();
-        auto quote = vm.newExpr(ExprType::Symbol); //  new Expr();
-        //quote->type = ExprType::Symbol;
+
+        auto quote = vm.newExpr(ExprType::Symbol);
         quote->as.symbol.name = new std::string("quote");
 
         expr->as.list.exprs->push_back(quote);
         expr->as.list.exprs->push_back(result);
 
-        return expr;
+        return;
     }
 
     consume(TokenType::PAREN_LEFT, "Expected (, found " + token.content);
@@ -71,13 +81,17 @@ Expr* Parser::parse()
 
     while (check(TokenType::PAREN_RIGHT) == false)
     {
-        Expr* temp = this->parse();
-        expr->as.list.exprs->push_back(*&temp);
+        std::cout << "parsing next part in list..." << std::endl;
+        this->parse();
+        auto temp = vm.pop();
+        expr->as.list.exprs->push_back(temp);
+        std::cout << "pushed to back" << std::endl;
     }
 
     consume(TokenType::PAREN_RIGHT, "Expected ), found " + token.content);
+    std::cout << "done with list" << std::endl;
 
-    return expr;
+    return;
 }
 
 bool Parser::match(TokenType type)
