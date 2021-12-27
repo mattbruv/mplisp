@@ -447,8 +447,10 @@ void evalLambda(Expr* expr, Environment* env)
     vm.push(result); // add resulting expr to stack
 }
 
-Expr* funcDefine(Expr* expr, Environment* env)
+void funcDefine(Expr* expr, Environment* env)
 {
+    vm.push(expr);
+
     auto list = *expr->as.list.exprs;
     auto iter = list.begin();
     iter++;
@@ -467,10 +469,11 @@ Expr* funcDefine(Expr* expr, Environment* env)
     }
 
     iter++;
-    auto value = eval((*iter), env);
+    eval((*iter), env);
+    auto value = vm.pop();
     env->variables[name] = value;
-
-    return value;
+    vm.pop(); // expr
+    vm.push(value);
 }
 
 bool isExprTrue(Expr* expr)
@@ -499,8 +502,10 @@ bool isExprTrue(Expr* expr)
     };
 }
 
-Expr* evalIf(Expr* expr, Environment* env)
+void evalIf(Expr* expr, Environment* env)
 {
+    vm.push(expr);
+
     auto list = expr->as.list.exprs;
     auto iter = list->begin();
     iter++;
@@ -508,7 +513,8 @@ Expr* evalIf(Expr* expr, Environment* env)
     if (iter == list->end())
         throw std::runtime_error("if statement missing condition");
 
-    auto cond = eval((*iter++), env);
+    eval((*iter++), env);
+    auto cond = vm.pop();
 
     if (iter == list->end())
         throw std::runtime_error("if statement missing true branch");
@@ -522,16 +528,21 @@ Expr* evalIf(Expr* expr, Environment* env)
 
     if (isExprTrue(cond))
     {
-        return eval(branchTrue, env);
+        eval(branchTrue, env);
     }
     else
     {
-        return eval(branchFalse, env);
+        eval(branchFalse, env);
     }
+    auto result = vm.pop();
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcGreaterThan(Expr* expr, Environment* env)
+void funcGreaterThan(Expr* expr, Environment* env)
 {
+    vm.push(expr);
+
     auto list = expr->as.list.exprs;
 
     if (list->size() != 3)
@@ -542,8 +553,10 @@ Expr* funcGreaterThan(Expr* expr, Environment* env)
     auto iter = list->begin();
     iter++;
 
-    auto arg1 = eval((*iter++), env);
-    auto arg2 = eval((*iter), env);
+    eval((*iter++), env);
+    auto arg1 = vm.pop();
+    eval((*iter), env);
+    auto arg2 = vm.pop();
 
     if (arg1->type != ExprType::Number)
         throw std::runtime_error("> first argument not number!");
@@ -551,22 +564,25 @@ Expr* funcGreaterThan(Expr* expr, Environment* env)
     if (arg2->type != ExprType::Number)
         throw std::runtime_error("> first argument not number!");
 
-    Expr* result = vm.newExpr(ExprType::Boolean); // new Expr();
-    // result->type = ExprType::Boolean;
+    Expr* result = vm.newExpr(ExprType::Boolean);
     result->as.boolean.value = numberToDouble(arg1) > numberToDouble(arg2);
-    //printExpr(arg1, false);
-    //printExpr(arg2, false);
-    return result;
+
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcCar(Expr* expr, Environment* env)
+void funcCar(Expr* expr, Environment* env)
 {
+    vm.push(expr);
+
     if (expr->as.list.exprs->size() != 2)
         throw std::runtime_error("Expected 1 argument for car");
 
     auto iter = expr->as.list.exprs->begin();
     iter++;
-    auto arg = eval((*iter), env);
+
+    eval((*iter), env);
+    auto arg = vm.pop();
 
     if (arg->type != ExprType::List)
         throw std::runtime_error("Cannot get car from item that is not a list");
@@ -576,17 +592,22 @@ Expr* funcCar(Expr* expr, Environment* env)
 
     auto arg1 = arg->as.list.exprs->begin();
 
-    return (*arg1);
+    vm.pop(); // expr
+    vm.push((*arg1));
 }
 
-Expr* funcCdr(Expr* expr, Environment* env)
+void funcCdr(Expr* expr, Environment* env)
 {
+    vm.push(expr);
+
     if (expr->as.list.exprs->size() != 2)
         throw std::runtime_error("Expected 1 argument for cdr");
 
     auto iter = expr->as.list.exprs->begin();
     iter++;
-    auto arg = eval((*iter), env);
+
+    eval((*iter), env);
+    auto arg = vm.pop();
 
     if (arg->type != ExprType::List)
         throw std::runtime_error("Cannot get cdr of an item that is not a list");
@@ -594,8 +615,7 @@ Expr* funcCdr(Expr* expr, Environment* env)
     if (arg->as.list.exprs->size() == 0)
         throw std::runtime_error("Cannot get cdr of empty list");
 
-    Expr* result = vm.newExpr(ExprType::List); // new Expr();
-    // result->type = ExprType::List;
+    Expr* result = vm.newExpr(ExprType::List);
     result->as.list.exprs = new std::vector<Expr*>();
 
     auto list = *arg->as.list.exprs;
@@ -607,11 +627,14 @@ Expr* funcCdr(Expr* expr, Environment* env)
         result->as.list.exprs->push_back((*it));
     }
 
-    return result;
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcCons(Expr* expr, Environment* env)
+void funcCons(Expr* expr, Environment* env)
 {
+    vm.push(expr);
+
     if (expr->as.list.exprs->size() != 3)
         throw std::runtime_error("Expected 2 arguments for cons");
 
@@ -622,8 +645,11 @@ Expr* funcCons(Expr* expr, Environment* env)
     // result->type = ExprType::List;
     result->as.list.exprs = new std::vector<Expr*>();
 
-    auto exprToAdd = eval((*iter++), env);
-    auto exprBase = eval((*iter), env);
+    eval((*iter++), env);
+    auto exprToAdd = vm.pop();
+
+    eval((*iter), env);
+    auto exprBase = vm.pop();
 
     // if list, add all items in list to new list
     if (exprBase->type == ExprType::List)
@@ -640,11 +666,14 @@ Expr* funcCons(Expr* expr, Environment* env)
     // now add the first argument
     result->as.list.exprs->insert(result->as.list.exprs->begin(), exprToAdd);
 
-    return result;
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcEmpty(Expr* expr, Environment* env)
+void funcEmpty(Expr* expr, Environment* env)
 {
+    vm.push(expr);
+
     auto list = expr->as.list.exprs;
 
     if (list->size() != 2)
@@ -652,14 +681,16 @@ Expr* funcEmpty(Expr* expr, Environment* env)
 
     auto iter = list->begin();
     iter++;
-    auto val = eval((*iter), env);
+
+    eval((*iter), env);
+    auto val = vm.pop();
 
     if (val->type != ExprType::List)
         throw std::runtime_error("empty? argument is not a list!");
 
-    Expr* result = vm.newExpr(ExprType::Boolean); // new Expr();
-    // result->type = ExprType::Boolean;
+    Expr* result = vm.newExpr(ExprType::Boolean);
     result->as.boolean.value = val->as.list.exprs->size() == 0;
 
-    return result;
+    vm.pop(); // expr
+    vm.push(result);
 }

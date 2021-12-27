@@ -92,7 +92,8 @@ int main(int argc, char* argv[])
                 parser->parse();
                 auto result = vm.pop();
 
-                Expr* evaled = eval(result, globalEnv);
+                eval(result, globalEnv);
+                auto evaled = vm.pop();
                 printExpr(evaled, true);
             }
         }
