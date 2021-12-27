@@ -8,7 +8,7 @@ VM::VM()
     this->stack = std::vector<Expr*>();
     this->firstExpr = nullptr;
     this->objectCount = 0;
-    this->gcThreshold = 50000;
+    this->gcThreshold = 1000;
     std::set<Expr*> freedPointers;
 }
 
@@ -73,11 +73,12 @@ void VM::sweep()
     int i = 0;
     while (*expr)
     {
+        bool inSet = (this->freedPointers.find((*expr)->next) != this->freedPointers.end());
         std::cout << "sweep: " << i++;
         std::cout << " this : " << *expr;
         std::cout << " next : " << (*expr)->next << " ";
-        std::cout << "next in set? "
-                  << (this->freedPointers.find((*expr)->next) != this->freedPointers.end());
+        std::cout << "next in set? " << inSet;
+        std::cout << std::endl;
         //printExpr(*expr, false);
         //printExpr(*expr, true);
         if (!(*expr)->marked)
@@ -91,6 +92,7 @@ void VM::sweep()
         }
         else
         {
+            //    std::cout << "???" << std::endl;
             //std::cout << "marked!" << std::endl;
             // Expr was reached, so unmark it for next GC
             // and move to the next
@@ -100,10 +102,16 @@ void VM::sweep()
         std::cout << std::endl;
         //std::cout << "Got to end!" << std::endl;
     }
+    std::cout << "fuck";
 }
 
 void VM::free(Expr* expr)
 {
+    //std::cout << expr->type << std::endl;
+    //printExpr(expr, true);
+    //std::cout << "in free.. ";
+    //printExpr(expr, true);
+
     if (this->freedPointers.find(expr) != this->freedPointers.end())
     {
         return;

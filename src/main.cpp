@@ -100,6 +100,12 @@ int main(int argc, char* argv[])
         catch (std::runtime_error const& error)
         {
             std::cout << error.what() << std::endl;
+            return 1;
+        }
+        catch (...)
+        {
+            std::cout << "oh shit, oh fuck..";
+            return 1;
         }
     }
 }
