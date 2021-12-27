@@ -47,7 +47,7 @@ void check(size_t start, size_t end)
     }
 }
 
-void eval(std::shared_ptr<Expr> expr, Environment* env)
+void eval(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     auto startSize = vm.size();
 
@@ -89,7 +89,7 @@ void eval(std::shared_ptr<Expr> expr, Environment* env)
     }
 }
 
-void evalList(std::shared_ptr<Expr> expr, Environment* env)
+void evalList(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 
@@ -306,7 +306,7 @@ double numberToDouble(std::shared_ptr<Expr> expr)
     return expr->as.number.as.doubleValue;
 }
 
-void funcAdd(std::shared_ptr<Expr> expr, Environment* env)
+void funcAdd(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 
@@ -335,7 +335,7 @@ void funcAdd(std::shared_ptr<Expr> expr, Environment* env)
     vm.push(result);
 }
 
-void funcSub(std::shared_ptr<Expr> expr, Environment* env)
+void funcSub(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 
@@ -372,7 +372,7 @@ void funcSub(std::shared_ptr<Expr> expr, Environment* env)
     vm.push(result);
 }
 
-void funcMul(std::shared_ptr<Expr> expr, Environment* env)
+void funcMul(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
     std::shared_ptr<Expr> result = vm.newExpr(ExprType::Number); // new Expr();
@@ -399,7 +399,7 @@ void funcMul(std::shared_ptr<Expr> expr, Environment* env)
     vm.push(result);
 }
 
-void funcDiv(std::shared_ptr<Expr> expr, Environment* env)
+void funcDiv(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 
@@ -439,13 +439,14 @@ void funcDiv(std::shared_ptr<Expr> expr, Environment* env)
     vm.push(result);
 }
 
-void evalLambda(std::shared_ptr<Expr> expr, Environment* env)
+void evalLambda(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     // add this expression to the stack to save it
     vm.push(expr);
 
     // Create new environment for this lambda.
-    Environment* closure = new Environment(env);
+    std::shared_ptr<Environment> closure = std::make_shared<Environment>(); // new Environment(env);
+    closure.get()->parent = env;
 
     auto list = *expr->as.list.exprs;
     auto iter = list.begin();
@@ -506,7 +507,7 @@ void evalLambda(std::shared_ptr<Expr> expr, Environment* env)
     vm.push(result); // add resulting expr to stack
 }
 
-void funcDefine(std::shared_ptr<Expr> expr, Environment* env)
+void funcDefine(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 
@@ -561,7 +562,7 @@ bool isExprTrue(std::shared_ptr<Expr> expr)
     };
 }
 
-void evalIf(std::shared_ptr<Expr> expr, Environment* env)
+void evalIf(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 
@@ -598,7 +599,7 @@ void evalIf(std::shared_ptr<Expr> expr, Environment* env)
     vm.push(result);
 }
 
-void funcGreaterThan(std::shared_ptr<Expr> expr, Environment* env)
+void funcGreaterThan(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 
@@ -630,7 +631,7 @@ void funcGreaterThan(std::shared_ptr<Expr> expr, Environment* env)
     vm.push(result);
 }
 
-void funcCar(std::shared_ptr<Expr> expr, Environment* env)
+void funcCar(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 
@@ -655,7 +656,7 @@ void funcCar(std::shared_ptr<Expr> expr, Environment* env)
     vm.push((*arg1));
 }
 
-void funcCdr(std::shared_ptr<Expr> expr, Environment* env)
+void funcCdr(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 
@@ -690,7 +691,7 @@ void funcCdr(std::shared_ptr<Expr> expr, Environment* env)
     vm.push(result);
 }
 
-void funcCons(std::shared_ptr<Expr> expr, Environment* env)
+void funcCons(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 
@@ -729,7 +730,7 @@ void funcCons(std::shared_ptr<Expr> expr, Environment* env)
     vm.push(result);
 }
 
-void funcEmpty(std::shared_ptr<Expr> expr, Environment* env)
+void funcEmpty(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
     vm.push(expr);
 

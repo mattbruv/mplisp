@@ -5,9 +5,8 @@
 
 #include "env.h"
 
-Environment::Environment(Environment* parent)
+Environment::Environment()
 {
-    this->parent = parent;
     this->variables = std::map<std::string, std::shared_ptr<Expr> >();
     this->reservedSymbols = std::set<std::string>();
     this->reservedSymbols.insert("+");
@@ -47,7 +46,7 @@ std::shared_ptr<Expr> Environment::getVariable(std::shared_ptr<Expr> sym)
         return iter->second;
     }
     // Check in the parent environment up the chain
-    if (this->parent != nullptr)
+    if (parent)
     {
         return this->parent->getVariable(sym);
     }

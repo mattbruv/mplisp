@@ -25,7 +25,7 @@ void printHelp()
     std::cout << std::endl;
 }
 
-void applyFile(std::string path, Environment* env)
+void applyFile(std::string path, std::shared_ptr<Environment> env)
 {
     std::vector<Token> tokens = tokenize(readFile(path));
     auto parser = new Parser(tokens);
@@ -77,7 +77,8 @@ int main(int argc, char* argv[])
         try
         {
             // Global default environment
-            Environment* globalEnv = new Environment(nullptr);
+            std::shared_ptr<Environment> globalEnv =
+                std::make_shared<Environment>(); // new Environment(nullptr);
             applyFile("std/comparison.scm", globalEnv);
             applyFile("std/logical.scm", globalEnv);
             applyFile("std/list.scm", globalEnv);
