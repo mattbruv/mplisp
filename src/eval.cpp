@@ -318,9 +318,10 @@ void funcSub(Expr* expr, Environment* env)
     result->as.number.as.doubleValue = sum;
 }
 
-Expr* funcMul(Expr* expr, Environment* env)
+void funcMul(Expr* expr, Environment* env)
 {
     Expr* result = vm.newExpr(ExprType::Number); // new Expr();
+    vm.push(result);
 
     auto list = *expr->as.list.exprs;
 
@@ -329,7 +330,8 @@ Expr* funcMul(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        Expr* value = eval((*iter), env);
+        eval((*iter), env);
+        auto value = vm.pop();
 
         if (value->type != ExprType::Number)
             throw std::runtime_error("+: Invalid expression given: " + value->type);
@@ -337,15 +339,14 @@ Expr* funcMul(Expr* expr, Environment* env)
         sum *= numberToDouble(value);
     }
 
-    // result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
-    return result;
 }
 
-Expr* funcDiv(Expr* expr, Environment* env)
+void funcDiv(Expr* expr, Environment* env)
 {
-    Expr* result = vm.newExpr(ExprType::Number); // new Expr();
+    Expr* result = vm.newExpr(ExprType::Number);
+    vm.push(result);
 
     auto list = *expr->as.list.exprs;
 
@@ -355,7 +356,8 @@ Expr* funcDiv(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        Expr* value = eval((*iter), env);
+        eval((*iter), env);
+        auto value = vm.pop();
 
         if (value->type != ExprType::Number)
             throw std::runtime_error("+: Invalid expression given: " + value->type);
@@ -374,14 +376,15 @@ Expr* funcDiv(Expr* expr, Environment* env)
         sum /= div;
     }
 
-    // result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
-    return result;
 }
 
-Expr* evalLambda(Expr* expr, Environment* env)
+void evalLambda(Expr* expr, Environment* env)
 {
+    // add this expression to the stack to save it
+    vm.push(expr);
+
     // Create new environment for this lambda.
     Environment* closure = new Environment(env);
 
@@ -425,7 +428,9 @@ Expr* evalLambda(Expr* expr, Environment* env)
             throw std::runtime_error("Too few arguments given to lambda!");
         }
 
-        auto argument = eval((*iter++), env);
+        eval((*iter++), env);
+        auto argument = vm.pop();
+        //auto argument = eval((*iter++), env);
 
         // add this argument to the closure environment
         closure->variables[*argSym->as.symbol.name] = argument;
@@ -436,11 +441,10 @@ Expr* evalLambda(Expr* expr, Environment* env)
     auto body = (*funcIter);
     //std::cout << "body: ";
     //printExpr(body, true);
-    auto result = eval(body, closure);
-    //std::cout << "result: ";
-    //printExpr(result, true);
-
-    return result;
+    eval(body, closure);
+    auto result = vm.pop();
+    vm.pop(); // remove the original expr from stack
+    vm.push(result); // add resulting expr to stack
 }
 
 Expr* funcDefine(Expr* expr, Environment* env)
