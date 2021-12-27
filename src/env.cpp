@@ -8,7 +8,7 @@
 Environment::Environment(Environment* parent)
 {
     this->parent = parent;
-    this->variables = std::map<std::string, Expr*>();
+    this->variables = std::map<std::string, std::shared_ptr<Expr> >();
     this->reservedSymbols = std::set<std::string>();
     this->reservedSymbols.insert("+");
     this->reservedSymbols.insert("-");
@@ -31,7 +31,7 @@ bool Environment::isReservedWord(std::string key)
     return this->reservedSymbols.find(key) != this->reservedSymbols.end();
 }
 
-Expr* Environment::getVariable(Expr* sym)
+std::shared_ptr<Expr> Environment::getVariable(std::shared_ptr<Expr> sym)
 {
     auto name = *sym->as.symbol.name;
 

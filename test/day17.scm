@@ -50,7 +50,7 @@
 (define testRange (range -100 100 '()))
 ; search xs are xs whos xVelDist are inX
 (define searchY (range -100 100 '()))
-(define searchXs (range -100 100 '()))
+(define searchXs (range -1 1 '()))
 
 (define peaks (lambda (x) (> x 0)))
 
@@ -71,10 +71,10 @@
 
 (define part2 (lambda (x) (length (PeakAtX x) 0)))
 
-(define foo (PeakAtX 7))
+;(define foo (PeakAtX 7))
 ;foo
 ;(length foo 0)
-;(sum (map part2 searchXs) 0)
+(sum (map part2 searchXs) 0)
 
 ;(shoot 7 9)
 ; loop through all possible ranges of X values

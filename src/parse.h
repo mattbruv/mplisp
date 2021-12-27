@@ -25,4 +25,4 @@ private:
     std::runtime_error error(Token token, std::string message);
 };
 
-bool parseNumber(Token token, Expr* expr);
+bool parseNumber(Token token, std::shared_ptr<Expr> expr);

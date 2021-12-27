@@ -11,7 +11,7 @@ Expr createNumber(std::string value)
     return expr;
 }
 
-void printExpr(Expr* expr, bool newline)
+void printExpr(std::shared_ptr<Expr> expr, bool newline)
 {
     // std::cout << "Expr type: " << expr->type << " ";
     switch (expr->type)

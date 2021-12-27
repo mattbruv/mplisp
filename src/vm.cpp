@@ -1,27 +1,28 @@
 #include <iostream>
+#include <memory>
 
 #include "vm.h"
 #include "expr.h"
 
 VM::VM()
 {
-    this->stack = std::vector<Expr*>();
+    this->stack = std::vector<std::shared_ptr<Expr> >();
     this->firstExpr = nullptr;
     this->objectCount = 0;
     this->gcThreshold = 1000;
-    std::set<Expr*> freedPointers;
+    std::set<std::shared_ptr<Expr> > freedPointers;
 }
 
-void VM::push(Expr* expr)
+void VM::push(std::shared_ptr<Expr> expr)
 {
     // printExpr(expr, true);
     this->stack.push_back(expr);
     //std::cout << "stack push: " << stack.size() << std::endl;
 }
 
-Expr* VM::pop()
+std::shared_ptr<Expr> VM::pop()
 {
-    Expr* e = this->stack.back();
+    std::shared_ptr<Expr> e = this->stack.back();
     this->stack.pop_back();
     // std::cout << "stack pop: " << stack.size() << std::endl;
     // popped expression needs to be 'delete'd afterwards,
@@ -34,14 +35,15 @@ size_t VM::size()
     return this->stack.size();
 }
 
-Expr* VM::newExpr(ExprType type)
+std::shared_ptr<Expr> VM::newExpr(ExprType type)
 {
+    /*
     if (this->objectCount == this->gcThreshold)
     {
         this->GC();
-    }
+    }*/
 
-    Expr* expr = new Expr();
+    auto expr = std::make_shared<Expr>();
     expr->type = type;
     expr->marked = false;
 
@@ -68,7 +70,7 @@ void VM::GC()
 void VM::sweep()
 {
     this->freedPointers.clear();
-    Expr** expr = &this->firstExpr;
+    std::shared_ptr<Expr>* expr = &this->firstExpr;
 
     int i = 0;
     while (*expr)
@@ -85,7 +87,7 @@ void VM::sweep()
         {
             //std::cout << "not marked!" << std::endl;
             // this expr wasn't reached, remove it from list and free it
-            Expr* unreached = *expr;
+            std::shared_ptr<Expr> unreached = *expr;
             *expr = unreached->next;
 
             this->free(unreached);
@@ -105,8 +107,9 @@ void VM::sweep()
     std::cout << "fuck";
 }
 
-void VM::free(Expr* expr)
+void VM::free(std::shared_ptr<Expr> expr)
 {
+    /*
     //std::cout << expr->type << std::endl;
     //printExpr(expr, true);
     //std::cout << "in free.. ";
@@ -156,6 +159,7 @@ void VM::free(Expr* expr)
     }
 
     this->objectCount--;
+    */
 }
 
 void VM::markAll()
@@ -167,7 +171,7 @@ void VM::markAll()
     }
 }
 
-void VM::mark(Expr* expr)
+void VM::mark(std::shared_ptr<Expr> expr)
 {
     if (expr->marked)
     {

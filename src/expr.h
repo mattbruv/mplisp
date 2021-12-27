@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -31,27 +32,27 @@ struct ExprNumber
 /*
 struct ExprConditional
 {
-    Expr* exprTest;
-    Expr* exprIfTrue;
-    Expr* exprIfFalse;
+    std::shared_ptr<Expr> exprTest;
+    std::shared_ptr<Expr> exprIfTrue;
+    std::shared_ptr<Expr> exprIfFalse;
 };
 
 struct ExprProcedure
 {
-    Expr* name;
-    std::vector<Expr*> args;
-    Expr* body;
+    std::shared_ptr<Expr> name;
+    std::vector<std::shared_ptr<Expr>> args;
+    std::shared_ptr<Expr> body;
 };
 
 struct ExprDefinition
 {
-    Expr* name;
-    Expr* value;
+    std::shared_ptr<Expr> name;
+    std::shared_ptr<Expr> value;
 }; */
 
 struct ExprList
 {
-    std::vector<Expr*>* exprs;
+    std::vector<std::shared_ptr<Expr> >* exprs;
 };
 
 struct ExprBool
@@ -63,7 +64,7 @@ typedef struct Expr
 {
     ExprType type;
     bool marked = false;
-    struct Expr* next = nullptr;
+    std::shared_ptr<Expr> next = nullptr;
 
     union as
     {
@@ -85,4 +86,4 @@ typedef struct Expr
 
 //Expr createSymbol(std::string name);
 Expr createNumber(std::string value);
-void printExpr(Expr* expr, bool newline);
+void printExpr(std::shared_ptr<Expr> expr, bool newline);

@@ -47,7 +47,7 @@ void check(size_t start, size_t end)
     }
 }
 
-void eval(Expr* expr, Environment* env)
+void eval(std::shared_ptr<Expr> expr, Environment* env)
 {
     auto startSize = vm.size();
 
@@ -89,7 +89,7 @@ void eval(Expr* expr, Environment* env)
     }
 }
 
-void evalList(Expr* expr, Environment* env)
+void evalList(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
@@ -105,7 +105,7 @@ void evalList(Expr* expr, Environment* env)
     // ONLY if it's not a lambda function
     for (auto iter = list->begin(); iter != list->end(); iter++)
     {
-        Expr* value = (*iter);
+        std::shared_ptr<Expr> value = (*iter);
 
         auto test = std::string("lambda").compare(*value->as.symbol.name) == 0;
         if (test)
@@ -136,7 +136,7 @@ void evalList(Expr* expr, Environment* env)
             }
         }
 
-        Expr* first = list->front();
+        std::shared_ptr<Expr> first = list->front();
 
         // if the first item is a symbol, it's a function call
         if (first->type == ExprType::Symbol)
@@ -269,7 +269,7 @@ void evalList(Expr* expr, Environment* env)
                 auto anon = vm.newExpr(ExprType::List);
                 vm.push(anon);
 
-                anon->as.list.exprs = new std::vector<Expr*>();
+                anon->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
                 anon->as.list.exprs->push_back(func);
 
                 auto iter = list->begin();
@@ -297,7 +297,7 @@ void evalList(Expr* expr, Environment* env)
     return;
 }
 
-double numberToDouble(Expr* expr)
+double numberToDouble(std::shared_ptr<Expr> expr)
 {
     if (expr->as.number.isInt)
     {
@@ -306,11 +306,11 @@ double numberToDouble(Expr* expr)
     return expr->as.number.as.doubleValue;
 }
 
-void funcAdd(Expr* expr, Environment* env)
+void funcAdd(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
-    Expr* result = vm.newExpr(ExprType::Number);
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Number);
 
     auto list = *expr->as.list.exprs;
 
@@ -335,11 +335,11 @@ void funcAdd(Expr* expr, Environment* env)
     vm.push(result);
 }
 
-void funcSub(Expr* expr, Environment* env)
+void funcSub(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
-    Expr* result = vm.newExpr(ExprType::Number);
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Number);
 
     auto list = *expr->as.list.exprs;
 
@@ -372,10 +372,10 @@ void funcSub(Expr* expr, Environment* env)
     vm.push(result);
 }
 
-void funcMul(Expr* expr, Environment* env)
+void funcMul(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
-    Expr* result = vm.newExpr(ExprType::Number); // new Expr();
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Number); // new Expr();
 
     auto list = *expr->as.list.exprs;
 
@@ -399,11 +399,11 @@ void funcMul(Expr* expr, Environment* env)
     vm.push(result);
 }
 
-void funcDiv(Expr* expr, Environment* env)
+void funcDiv(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
-    Expr* result = vm.newExpr(ExprType::Number);
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Number);
 
     auto list = *expr->as.list.exprs;
 
@@ -439,7 +439,7 @@ void funcDiv(Expr* expr, Environment* env)
     vm.push(result);
 }
 
-void evalLambda(Expr* expr, Environment* env)
+void evalLambda(std::shared_ptr<Expr> expr, Environment* env)
 {
     // add this expression to the stack to save it
     vm.push(expr);
@@ -506,7 +506,7 @@ void evalLambda(Expr* expr, Environment* env)
     vm.push(result); // add resulting expr to stack
 }
 
-void funcDefine(Expr* expr, Environment* env)
+void funcDefine(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
@@ -535,7 +535,7 @@ void funcDefine(Expr* expr, Environment* env)
     vm.push(value);
 }
 
-bool isExprTrue(Expr* expr)
+bool isExprTrue(std::shared_ptr<Expr> expr)
 {
     switch (expr->type)
     {
@@ -561,7 +561,7 @@ bool isExprTrue(Expr* expr)
     };
 }
 
-void evalIf(Expr* expr, Environment* env)
+void evalIf(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
@@ -598,7 +598,7 @@ void evalIf(Expr* expr, Environment* env)
     vm.push(result);
 }
 
-void funcGreaterThan(Expr* expr, Environment* env)
+void funcGreaterThan(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
@@ -623,14 +623,14 @@ void funcGreaterThan(Expr* expr, Environment* env)
     if (arg2->type != ExprType::Number)
         throw std::runtime_error("> first argument not number!");
 
-    Expr* result = vm.newExpr(ExprType::Boolean);
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Boolean);
     result->as.boolean.value = numberToDouble(arg1) > numberToDouble(arg2);
 
     vm.pop(); // expr
     vm.push(result);
 }
 
-void funcCar(Expr* expr, Environment* env)
+void funcCar(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
@@ -655,7 +655,7 @@ void funcCar(Expr* expr, Environment* env)
     vm.push((*arg1));
 }
 
-void funcCdr(Expr* expr, Environment* env)
+void funcCdr(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
@@ -674,8 +674,8 @@ void funcCdr(Expr* expr, Environment* env)
     if (arg->as.list.exprs->size() == 0)
         throw std::runtime_error("Cannot get cdr of empty list");
 
-    Expr* result = vm.newExpr(ExprType::List);
-    result->as.list.exprs = new std::vector<Expr*>();
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::List);
+    result->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
 
     auto list = *arg->as.list.exprs;
     auto it = list.begin();
@@ -690,7 +690,7 @@ void funcCdr(Expr* expr, Environment* env)
     vm.push(result);
 }
 
-void funcCons(Expr* expr, Environment* env)
+void funcCons(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
@@ -700,9 +700,9 @@ void funcCons(Expr* expr, Environment* env)
     auto iter = expr->as.list.exprs->begin();
     iter++;
 
-    Expr* result = vm.newExpr(ExprType::List); // new Expr();
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::List); // new Expr();
     // result->type = ExprType::List;
-    result->as.list.exprs = new std::vector<Expr*>();
+    result->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
 
     eval((*iter++), env);
     auto exprToAdd = vm.pop();
@@ -729,7 +729,7 @@ void funcCons(Expr* expr, Environment* env)
     vm.push(result);
 }
 
-void funcEmpty(Expr* expr, Environment* env)
+void funcEmpty(std::shared_ptr<Expr> expr, Environment* env)
 {
     vm.push(expr);
 
@@ -747,7 +747,7 @@ void funcEmpty(Expr* expr, Environment* env)
     if (val->type != ExprType::List)
         throw std::runtime_error("empty? argument is not a list!");
 
-    Expr* result = vm.newExpr(ExprType::Boolean);
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Boolean);
     result->as.boolean.value = val->as.list.exprs->size() == 0;
 
     vm.pop(); // expr

@@ -14,7 +14,7 @@ Parser::Parser(std::vector<Token> tokens)
 
 void Parser::parse()
 {
-    Expr* expr = vm.newExpr(ExprType::Number); //  new Expr();
+    std::shared_ptr<Expr> expr = vm.newExpr(ExprType::Number); //  new Expr();
     //std::cout << "\n" << std::endl;
     //std::cout << "parse called" << std::endl;
     vm.push(expr);
@@ -57,10 +57,10 @@ void Parser::parse()
         advance();
 
         this->parse();
-        Expr* result = vm.pop();
+        std::shared_ptr<Expr> result = vm.pop();
 
         expr->type = ExprType::List;
-        expr->as.list.exprs = new std::vector<Expr*>();
+        expr->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
 
         auto quote = vm.newExpr(ExprType::Symbol);
         quote->as.symbol.name = new std::string("quote");
@@ -74,7 +74,7 @@ void Parser::parse()
     consume(TokenType::PAREN_LEFT, "Expected (, found " + token.content);
     expr->type = ExprType::List;
     // Don't forget to initialize your variables or bad things happen
-    expr->as.list.exprs = new std::vector<Expr*>();
+    expr->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
 
     while (check(TokenType::PAREN_RIGHT) == false)
     {
@@ -144,7 +144,7 @@ std::runtime_error Parser::error(Token token, std::string message)
     return std::runtime_error(message);
 }
 
-bool parseNumber(Token token, Expr* expr)
+bool parseNumber(Token token, std::shared_ptr<Expr> expr)
 {
     try
     {
