@@ -51,23 +51,23 @@ void eval(Expr* expr, Environment* env)
     {
     case ExprType::Symbol:
     {
-        return env->getVariable(expr);
-        break;
+        vm.push(env->getVariable(expr));
+        return;
     }
     case ExprType::Number:
     {
-        return expr;
-        break;
+        vm.push(expr);
+        return;
     }
     case ExprType::Boolean:
     {
-        return expr;
-        break;
+        vm.push(expr);
+        return;
     }
     case ExprType::List:
     {
-        return evalList(expr, env);
-        break;
+        evalList(expr, env);
+        return;
     }
     default:
     {
@@ -77,12 +77,16 @@ void eval(Expr* expr, Environment* env)
     }
 }
 
-Expr* evalList(Expr* expr, Environment* env)
+void evalList(Expr* expr, Environment* env)
 {
+    // SHOULD PUT A NEW LIST ON THE STACK
     auto list = expr->as.list.exprs;
 
     if (list->size() == 0)
-        return expr;
+    {
+        vm.push(expr);
+        return;
+    }
 
     // Recursively evaluate all expressions in this list
     // ONLY if it's not a lambda function
@@ -93,7 +97,8 @@ Expr* evalList(Expr* expr, Environment* env)
         auto test = std::string("lambda").compare(*value->as.symbol.name) == 0;
         if (test)
         {
-            return expr;
+            vm.push(expr);
+            return;
         }
 
         // test to see if the first item in the list is a lambda.
@@ -109,7 +114,8 @@ Expr* evalList(Expr* expr, Environment* env)
 
                 if (first->type == ExprType::Symbol && test)
                 {
-                    return evalLambda(expr, env);
+                    evalLambda(expr, env);
+                    return;
                 }
             }
         }
@@ -129,64 +135,71 @@ Expr* evalList(Expr* expr, Environment* env)
                 {
                 case STDFunc::ADD:
                 {
-                    auto res = funcAdd(expr, env);
-                    return res;
-                    break;
+                    funcAdd(expr, env);
+                    return;
                 }
                 case STDFunc::SUB:
                 {
-                    auto res = funcSub(expr, env);
-                    return res;
+                    funcSub(expr, env);
+                    return;
                 }
                 case STDFunc::MUL:
                 {
-                    auto res = funcMul(expr, env);
-                    return res;
+                    funcMul(expr, env);
+                    return;
                 }
                 case STDFunc::DIV:
                 {
-                    auto res = funcDiv(expr, env);
-                    return res;
+                    funcDiv(expr, env);
+                    return;
                 }
                 case STDFunc::LAMBDA:
                 {
                     //std::cout << "lambda eval?" << std::endl;
-                    return expr;
+                    vm.push(expr);
+                    return;
                 }
                 case STDFunc::GREATERTHAN:
                 {
-                    return funcGreaterThan(expr, env);
+                    funcGreaterThan(expr, env);
+                    return;
                 }
                 case STDFunc::IF:
                 {
-                    return evalIf(expr, env);
+                    evalIf(expr, env);
+                    return;
                 }
                 case STDFunc::DEFINE:
                 {
-                    return funcDefine(expr, env);
+                    funcDefine(expr, env);
+                    return;
                 }
                 case STDFunc::CAR:
                 {
-                    return funcCar(expr, env);
+                    funcCar(expr, env);
+                    return;
                 }
                 case STDFunc::CDR:
                 {
-                    return funcCdr(expr, env);
+                    funcCdr(expr, env);
+                    return;
                 }
                 case STDFunc::CONS:
                 {
-                    return funcCons(expr, env);
+                    funcCons(expr, env);
+                    return;
                 }
                 case STDFunc::QUOTE:
                 {
                     auto iter = list->begin();
                     iter++;
-                    return (*iter);
-                    break;
+                    vm.push((*iter));
+                    return;
                 }
                 case STDFunc::EMPTYCHECK:
                 {
-                    return funcEmpty(expr, env);
+                    funcEmpty(expr, env);
+                    return;
                 }
                 default:
                 {
