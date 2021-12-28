@@ -39,8 +39,18 @@ auto StdMap = std::map<std::string, STDFunc>{
     { "empty?", STDFunc::EMPTYCHECK }, //
 };
 
-Expr* eval(Expr* expr, Environment* env)
+void check(size_t start, size_t end)
 {
+    if (end != start + 1)
+    {
+        throw std::runtime_error("ERROR WITH STACK SIZE");
+    }
+}
+
+void eval(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
+{
+    auto startSize = vm.size();
+
     if (verbose())
     {
         std::cout << "evaluating: ";
@@ -51,23 +61,25 @@ Expr* eval(Expr* expr, Environment* env)
     {
     case ExprType::Symbol:
     {
-        return env->getVariable(expr);
-        break;
+        vm.push(env->getVariable(expr));
+        return;
     }
     case ExprType::Number:
     {
-        return expr;
-        break;
+        vm.push(expr);
+        return;
     }
     case ExprType::Boolean:
     {
-        return expr;
-        break;
+        vm.push(expr);
+        return;
     }
     case ExprType::List:
     {
-        return evalList(expr, env);
-        break;
+        evalList(expr, env);
+        auto endSize = vm.size();
+        check(startSize, endSize);
+        return;
     }
     default:
     {
@@ -77,23 +89,29 @@ Expr* eval(Expr* expr, Environment* env)
     }
 }
 
-Expr* evalList(Expr* expr, Environment* env)
+void evalList(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
+    vm.push(expr);
+
     auto list = expr->as.list.exprs;
 
     if (list->size() == 0)
-        return expr;
+    {
+        // vm.push(expr);
+        return;
+    }
 
     // Recursively evaluate all expressions in this list
     // ONLY if it's not a lambda function
     for (auto iter = list->begin(); iter != list->end(); iter++)
     {
-        Expr* value = (*iter);
+        std::shared_ptr<Expr> value = (*iter);
 
         auto test = std::string("lambda").compare(*value->as.symbol.name) == 0;
         if (test)
         {
-            return expr;
+            // vm.push(expr);
+            return;
         }
 
         // test to see if the first item in the list is a lambda.
@@ -109,12 +127,16 @@ Expr* evalList(Expr* expr, Environment* env)
 
                 if (first->type == ExprType::Symbol && test)
                 {
-                    return evalLambda(expr, env);
+                    evalLambda(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
             }
         }
 
-        Expr* first = list->front();
+        std::shared_ptr<Expr> first = list->front();
 
         // if the first item is a symbol, it's a function call
         if (first->type == ExprType::Symbol)
@@ -129,64 +151,103 @@ Expr* evalList(Expr* expr, Environment* env)
                 {
                 case STDFunc::ADD:
                 {
-                    auto res = funcAdd(expr, env);
-                    return res;
-                    break;
+                    funcAdd(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 case STDFunc::SUB:
                 {
-                    auto res = funcSub(expr, env);
-                    return res;
+                    funcSub(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 case STDFunc::MUL:
                 {
-                    auto res = funcMul(expr, env);
-                    return res;
+                    funcMul(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 case STDFunc::DIV:
                 {
-                    auto res = funcDiv(expr, env);
-                    return res;
+                    funcDiv(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 case STDFunc::LAMBDA:
                 {
-                    //std::cout << "lambda eval?" << std::endl;
-                    return expr;
+                    return;
                 }
                 case STDFunc::GREATERTHAN:
                 {
-                    return funcGreaterThan(expr, env);
+                    funcGreaterThan(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 case STDFunc::IF:
                 {
-                    return evalIf(expr, env);
+                    evalIf(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 case STDFunc::DEFINE:
                 {
-                    return funcDefine(expr, env);
+                    funcDefine(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 case STDFunc::CAR:
                 {
-                    return funcCar(expr, env);
+                    funcCar(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 case STDFunc::CDR:
                 {
-                    return funcCdr(expr, env);
+                    funcCdr(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 case STDFunc::CONS:
                 {
-                    return funcCons(expr, env);
+                    funcCons(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 case STDFunc::QUOTE:
                 {
                     auto iter = list->begin();
                     iter++;
-                    return (*iter);
-                    break;
+                    vm.pop(); // expr
+                    vm.push((*iter));
+                    return;
                 }
                 case STDFunc::EMPTYCHECK:
                 {
-                    return funcEmpty(expr, env);
+                    funcEmpty(expr, env);
+                    auto result = vm.pop();
+                    vm.pop(); // expr
+                    vm.push(result);
+                    return;
                 }
                 default:
                 {
@@ -200,31 +261,43 @@ Expr* evalList(Expr* expr, Environment* env)
             // it's a custom function call.
             else
             {
+                // TODO: possibly improve this by mutating
+                // and replacing the first symbol with the lambda
+
+                // get the function
                 auto func = env->getVariable(first);
-                auto anon = new Expr();
-                anon->type = ExprType::List;
-                anon->as.list.exprs = new std::vector<Expr*>();
+                auto anon = vm.newExpr(ExprType::List);
+                vm.push(anon);
+
+                anon->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
                 anon->as.list.exprs->push_back(func);
+
                 auto iter = list->begin();
                 iter++;
+
                 while (iter != list->end())
                 {
                     anon->as.list.exprs->push_back((*iter++));
                 }
-                return evalLambda(anon, env);
+
+                evalLambda(anon, env);
+                auto evalResult = vm.pop(); // pop eval result
+                vm.pop(); // pop anon
+                vm.pop(); // pop expr
+                vm.push(evalResult); // re-add result
+                return;
             }
         }
 
-        Expr* evaled = eval(value, env);
-        // TODO: this would cause bugs, figure out how to manage memory
-        //delete (*iter); // free memory at the old expression pointer
+        eval(value, env);
+        auto evaled = vm.pop();
         (*iter) = evaled;
-    };
+    }
 
-    return expr;
+    return;
 }
 
-double numberToDouble(Expr* expr)
+double numberToDouble(std::shared_ptr<Expr> expr)
 {
     if (expr->as.number.isInt)
     {
@@ -233,9 +306,11 @@ double numberToDouble(Expr* expr)
     return expr->as.number.as.doubleValue;
 }
 
-Expr* funcAdd(Expr* expr, Environment* env)
+void funcAdd(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
-    Expr* result = new Expr();
+    vm.push(expr);
+
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Number);
 
     auto list = *expr->as.list.exprs;
 
@@ -244,7 +319,8 @@ Expr* funcAdd(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        Expr* value = eval((*iter), env);
+        eval((*iter), env);
+        auto value = vm.pop();
 
         if (value->type != ExprType::Number)
             throw std::runtime_error("+: Invalid expression given: " + value->type);
@@ -252,15 +328,18 @@ Expr* funcAdd(Expr* expr, Environment* env)
         sum += numberToDouble(value);
     }
 
-    result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
-    return result;
+
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcSub(Expr* expr, Environment* env)
+void funcSub(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
-    Expr* result = new Expr();
+    vm.push(expr);
+
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Number);
 
     auto list = *expr->as.list.exprs;
 
@@ -270,7 +349,8 @@ Expr* funcSub(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        Expr* value = eval((*iter), env);
+        eval((*iter), env);
+        auto value = vm.pop();
 
         if (value->type != ExprType::Number)
             throw std::runtime_error("+: Invalid expression given: " + value->type);
@@ -285,15 +365,17 @@ Expr* funcSub(Expr* expr, Environment* env)
         sum -= numberToDouble(value);
     }
 
-    result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
-    return result;
+
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcMul(Expr* expr, Environment* env)
+void funcMul(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
-    Expr* result = new Expr();
+    vm.push(expr);
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Number); // new Expr();
 
     auto list = *expr->as.list.exprs;
 
@@ -302,7 +384,8 @@ Expr* funcMul(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        Expr* value = eval((*iter), env);
+        eval((*iter), env);
+        auto value = vm.pop();
 
         if (value->type != ExprType::Number)
             throw std::runtime_error("+: Invalid expression given: " + value->type);
@@ -310,15 +393,17 @@ Expr* funcMul(Expr* expr, Environment* env)
         sum *= numberToDouble(value);
     }
 
-    result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
-    return result;
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcDiv(Expr* expr, Environment* env)
+void funcDiv(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
-    Expr* result = new Expr();
+    vm.push(expr);
+
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Number);
 
     auto list = *expr->as.list.exprs;
 
@@ -328,7 +413,8 @@ Expr* funcDiv(Expr* expr, Environment* env)
 
     for (iter++; iter != list.end(); iter++)
     {
-        Expr* value = eval((*iter), env);
+        eval((*iter), env);
+        auto value = vm.pop();
 
         if (value->type != ExprType::Number)
             throw std::runtime_error("+: Invalid expression given: " + value->type);
@@ -347,16 +433,20 @@ Expr* funcDiv(Expr* expr, Environment* env)
         sum /= div;
     }
 
-    result->type = ExprType::Number;
     result->as.number.isInt = false;
     result->as.number.as.doubleValue = sum;
-    return result;
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* evalLambda(Expr* expr, Environment* env)
+void evalLambda(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
+    // add this expression to the stack to save it
+    vm.push(expr);
+
     // Create new environment for this lambda.
-    Environment* closure = new Environment(env);
+    std::shared_ptr<Environment> closure = std::make_shared<Environment>(); // new Environment(env);
+    closure.get()->parent = env;
 
     auto list = *expr->as.list.exprs;
     auto iter = list.begin();
@@ -398,7 +488,9 @@ Expr* evalLambda(Expr* expr, Environment* env)
             throw std::runtime_error("Too few arguments given to lambda!");
         }
 
-        auto argument = eval((*iter++), env);
+        eval((*iter++), env);
+        auto argument = vm.pop();
+        //auto argument = eval((*iter++), env);
 
         // add this argument to the closure environment
         closure->variables[*argSym->as.symbol.name] = argument;
@@ -409,15 +501,16 @@ Expr* evalLambda(Expr* expr, Environment* env)
     auto body = (*funcIter);
     //std::cout << "body: ";
     //printExpr(body, true);
-    auto result = eval(body, closure);
-    //std::cout << "result: ";
-    //printExpr(result, true);
-
-    return result;
+    eval(body, closure);
+    auto result = vm.pop();
+    vm.pop(); // remove the original expr from stack
+    vm.push(result); // add resulting expr to stack
 }
 
-Expr* funcDefine(Expr* expr, Environment* env)
+void funcDefine(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
+    vm.push(expr);
+
     auto list = *expr->as.list.exprs;
     auto iter = list.begin();
     iter++;
@@ -436,13 +529,14 @@ Expr* funcDefine(Expr* expr, Environment* env)
     }
 
     iter++;
-    auto value = eval((*iter), env);
+    eval((*iter), env);
+    auto value = vm.pop();
     env->variables[name] = value;
-
-    return value;
+    vm.pop(); // expr
+    vm.push(value);
 }
 
-bool isExprTrue(Expr* expr)
+bool isExprTrue(std::shared_ptr<Expr> expr)
 {
     switch (expr->type)
     {
@@ -468,8 +562,10 @@ bool isExprTrue(Expr* expr)
     };
 }
 
-Expr* evalIf(Expr* expr, Environment* env)
+void evalIf(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
+    vm.push(expr);
+
     auto list = expr->as.list.exprs;
     auto iter = list->begin();
     iter++;
@@ -477,7 +573,8 @@ Expr* evalIf(Expr* expr, Environment* env)
     if (iter == list->end())
         throw std::runtime_error("if statement missing condition");
 
-    auto cond = eval((*iter++), env);
+    eval((*iter++), env);
+    auto cond = vm.pop();
 
     if (iter == list->end())
         throw std::runtime_error("if statement missing true branch");
@@ -491,16 +588,21 @@ Expr* evalIf(Expr* expr, Environment* env)
 
     if (isExprTrue(cond))
     {
-        return eval(branchTrue, env);
+        eval(branchTrue, env);
     }
     else
     {
-        return eval(branchFalse, env);
+        eval(branchFalse, env);
     }
+    auto result = vm.pop();
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcGreaterThan(Expr* expr, Environment* env)
+void funcGreaterThan(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
+    vm.push(expr);
+
     auto list = expr->as.list.exprs;
 
     if (list->size() != 3)
@@ -511,8 +613,10 @@ Expr* funcGreaterThan(Expr* expr, Environment* env)
     auto iter = list->begin();
     iter++;
 
-    auto arg1 = eval((*iter++), env);
-    auto arg2 = eval((*iter), env);
+    eval((*iter++), env);
+    auto arg1 = vm.pop();
+    eval((*iter), env);
+    auto arg2 = vm.pop();
 
     if (arg1->type != ExprType::Number)
         throw std::runtime_error("> first argument not number!");
@@ -520,22 +624,25 @@ Expr* funcGreaterThan(Expr* expr, Environment* env)
     if (arg2->type != ExprType::Number)
         throw std::runtime_error("> first argument not number!");
 
-    Expr* result = new Expr();
-    result->type = ExprType::Boolean;
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Boolean);
     result->as.boolean.value = numberToDouble(arg1) > numberToDouble(arg2);
-    //printExpr(arg1, false);
-    //printExpr(arg2, false);
-    return result;
+
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcCar(Expr* expr, Environment* env)
+void funcCar(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
+    vm.push(expr);
+
     if (expr->as.list.exprs->size() != 2)
         throw std::runtime_error("Expected 1 argument for car");
 
     auto iter = expr->as.list.exprs->begin();
     iter++;
-    auto arg = eval((*iter), env);
+
+    eval((*iter), env);
+    auto arg = vm.pop();
 
     if (arg->type != ExprType::List)
         throw std::runtime_error("Cannot get car from item that is not a list");
@@ -545,17 +652,22 @@ Expr* funcCar(Expr* expr, Environment* env)
 
     auto arg1 = arg->as.list.exprs->begin();
 
-    return (*arg1);
+    vm.pop(); // expr
+    vm.push((*arg1));
 }
 
-Expr* funcCdr(Expr* expr, Environment* env)
+void funcCdr(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
+    vm.push(expr);
+
     if (expr->as.list.exprs->size() != 2)
         throw std::runtime_error("Expected 1 argument for cdr");
 
     auto iter = expr->as.list.exprs->begin();
     iter++;
-    auto arg = eval((*iter), env);
+
+    eval((*iter), env);
+    auto arg = vm.pop();
 
     if (arg->type != ExprType::List)
         throw std::runtime_error("Cannot get cdr of an item that is not a list");
@@ -563,9 +675,8 @@ Expr* funcCdr(Expr* expr, Environment* env)
     if (arg->as.list.exprs->size() == 0)
         throw std::runtime_error("Cannot get cdr of empty list");
 
-    Expr* result = new Expr();
-    result->type = ExprType::List;
-    result->as.list.exprs = new std::vector<Expr*>();
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::List);
+    result->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
 
     auto list = *arg->as.list.exprs;
     auto it = list.begin();
@@ -576,23 +687,29 @@ Expr* funcCdr(Expr* expr, Environment* env)
         result->as.list.exprs->push_back((*it));
     }
 
-    return result;
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcCons(Expr* expr, Environment* env)
+void funcCons(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
+    vm.push(expr);
+
     if (expr->as.list.exprs->size() != 3)
         throw std::runtime_error("Expected 2 arguments for cons");
 
     auto iter = expr->as.list.exprs->begin();
     iter++;
 
-    Expr* result = new Expr();
-    result->type = ExprType::List;
-    result->as.list.exprs = new std::vector<Expr*>();
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::List); // new Expr();
+    // result->type = ExprType::List;
+    result->as.list.exprs = new std::vector<std::shared_ptr<Expr> >();
 
-    auto exprToAdd = eval((*iter++), env);
-    auto exprBase = eval((*iter), env);
+    eval((*iter++), env);
+    auto exprToAdd = vm.pop();
+
+    eval((*iter), env);
+    auto exprBase = vm.pop();
 
     // if list, add all items in list to new list
     if (exprBase->type == ExprType::List)
@@ -609,11 +726,14 @@ Expr* funcCons(Expr* expr, Environment* env)
     // now add the first argument
     result->as.list.exprs->insert(result->as.list.exprs->begin(), exprToAdd);
 
-    return result;
+    vm.pop(); // expr
+    vm.push(result);
 }
 
-Expr* funcEmpty(Expr* expr, Environment* env)
+void funcEmpty(std::shared_ptr<Expr> expr, std::shared_ptr<Environment> env)
 {
+    vm.push(expr);
+
     auto list = expr->as.list.exprs;
 
     if (list->size() != 2)
@@ -621,14 +741,16 @@ Expr* funcEmpty(Expr* expr, Environment* env)
 
     auto iter = list->begin();
     iter++;
-    auto val = eval((*iter), env);
+
+    eval((*iter), env);
+    auto val = vm.pop();
 
     if (val->type != ExprType::List)
         throw std::runtime_error("empty? argument is not a list!");
 
-    Expr* result = new Expr();
-    result->type = ExprType::Boolean;
+    std::shared_ptr<Expr> result = vm.newExpr(ExprType::Boolean);
     result->as.boolean.value = val->as.list.exprs->size() == 0;
 
-    return result;
+    vm.pop(); // expr
+    vm.push(result);
 }

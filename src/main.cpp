@@ -8,6 +8,7 @@
 #include "expr.h"
 #include "read.h"
 #include "parse.h"
+#include "vm.h"
 
 void printHelp()
 {
@@ -24,7 +25,7 @@ void printHelp()
     std::cout << std::endl;
 }
 
-void applyFile(std::string path, Environment* env)
+void applyFile(std::string path, std::shared_ptr<Environment> env)
 {
     std::vector<Token> tokens = tokenize(readFile(path));
     auto parser = new Parser(tokens);
@@ -32,7 +33,8 @@ void applyFile(std::string path, Environment* env)
     // parse all expressions in the file
     while (!parser->isAtEnd())
     {
-        Expr* result = parser->parse();
+        parser->parse();
+        auto result = vm.pop();
         eval(result, env);
     }
 
@@ -75,7 +77,8 @@ int main(int argc, char* argv[])
         try
         {
             // Global default environment
-            Environment* globalEnv = new Environment(nullptr);
+            std::shared_ptr<Environment> globalEnv =
+                std::make_shared<Environment>(); // new Environment(nullptr);
             applyFile("std/comparison.scm", globalEnv);
             applyFile("std/logical.scm", globalEnv);
             applyFile("std/list.scm", globalEnv);
@@ -86,16 +89,24 @@ int main(int argc, char* argv[])
             // parse all expressions in the file
             while (!parser->isAtEnd())
             {
-                Expr* result = parser->parse();
-                if (verbose())
-                    printExpr(result, true);
-                Expr* evaled = eval(result, globalEnv);
+                parser->parse();
+                auto result = vm.pop();
+
+                eval(result, globalEnv);
+                auto evaled = vm.pop();
                 printExpr(evaled, true);
+                vm.push(evaled);
             }
         }
         catch (std::runtime_error const& error)
         {
             std::cout << error.what() << std::endl;
+            return 1;
+        }
+        catch (...)
+        {
+            std::cout << "oh shit, oh fuck..";
+            return 1;
         }
     }
 }

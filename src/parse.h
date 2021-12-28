@@ -9,7 +9,7 @@ class Parser
 {
 public:
     Parser(std::vector<Token> tokens);
-    Expr* parse();
+    void parse();
     bool isAtEnd();
 
 private:
@@ -25,4 +25,4 @@ private:
     std::runtime_error error(Token token, std::string message);
 };
 
-bool parseNumber(Token token, Expr* expr);
+bool parseNumber(Token token, std::shared_ptr<Expr> expr);
